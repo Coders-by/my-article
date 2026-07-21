@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eeece6">
+  <title>阅读｜My Article</title>
+  <style>
+    :root { --bg: #eeece6; --paper: #f8f7f2; --ink: #292b28; --muted: #7a7d76; --line: #d9d9d1; --accent: #bd6244; --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin: 0; color: var(--ink); background: var(--bg); font-family: var(--sans); }
+    .reader-bar { height: 68px; padding: 0 clamp(18px, 4vw, 56px); display: flex; align-items: center; gap: 18px; border-bottom: 1px solid var(--line); background: rgba(248, 247, 242, .9); backdrop-filter: blur(18px); position: relative; z-index: 2; }
+    .back { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); text-decoration: none; font-size: .76rem; letter-spacing: .08em; }
+    .back:hover { color: var(--accent); }
+    .back strong { font-size: 1.1rem; font-weight: 400; }
+    .divider { width: 1px; height: 20px; background: var(--line); }
+    .eyebrow { color: var(--accent); font-size: .63rem; letter-spacing: .14em; }
+    .title { min-width: 0; margin-left: auto; overflow: hidden; color: var(--muted); font-size: .76rem; text-overflow: ellipsis; white-space: nowrap; }
+    .frame-wrap { height: calc(100% - 68px); background: var(--paper); }
+    iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--paper); }
+    .error { display: none; max-width: 560px; margin: 15vh auto; padding: 36px; border: 1px solid var(--line); background: var(--paper); }
+    .error.show { display: block; }
+    .error h1 { margin: 0 0 12px; font: 500 2rem/1.3 Georgia, serif; }
+    .error p { color: var(--muted); line-height: 1.8; }
+    @media (max-width: 560px) { .reader-bar { height: 60px; gap: 11px; } .reader-bar .divider, .reader-bar .eyebrow { display: none; } .title { font-size: .7rem; } .frame-wrap { height: calc(100% - 60px); } }
+  </style>
+</head>
+<body>
+  <header class="reader-bar">
+    <a class="back" href="index.html"><strong>←</strong><span>文章库</span></a>
+    <span class="divider" aria-hidden="true"></span>
+    <span class="eyebrow" id="category"></span>
+    <span class="title" id="title">正在打开文章</span>
+  </header>
+  <main class="frame-wrap" id="frameWrap"><iframe id="articleFrame" title="文章阅读内容"></iframe></main>
+  <section class="error" id="error"><h1>这篇文章暂时找不到</h1><p>请回到文章库，从目录中选择一篇文章继续阅读。</p><a class="back" href="index.html">← 返回文章库</a></section>
+  <script>
+    const articles = {
+      convergence: { category: 'ENGINEERING', title: '越聪明的系统，越需要收敛', path: 'articles/convergence.html' },
+      compound: { category: 'CULTURE', title: '让开发长出复利', path: 'articles/compound.html' },
+      language: { category: 'ESSAY', title: '语言停顿的间隙', path: 'articles/language.html' }
+    };
+    const id = new URLSearchParams(location.search).get('id') || 'language';
+    const article = articles[id];
+    if (article) {
+      document.title = `${article.title}｜My Article`;
+      document.getElementById('category').textContent = article.category;
+      document.getElementById('title').textContent = article.title;
+      document.getElementById('articleFrame').src = article.path;
+    } else {
+      document.getElementById('frameWrap').style.display = 'none';
+      document.getElementById('error').classList.add('show');
+    }
+  </script>
+</body>
+</html>
