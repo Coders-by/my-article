@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e3e0d6">
+  <title>新册 · 印本模板</title>
+  <link rel="stylesheet" href="../assets/chapbook.css">
+  <script>
+    // ============================================================
+    // 在此修改成你自己的书名、卷名和正文
+    // ============================================================
+    window.CHAPBOOK = {
+      meta: {
+        title: '新册名',                 // 封面大标题
+        subtitle: '副标题或主题说明',    // 封面副标题
+        editor: '编者名',                // 封面底部作者 / 编者行
+        eyeLabel: '词眼'                 // 每页左侧关键词的 label，可改为"关键词"等
+      },
+      volumes: [
+        {
+          name: '卷一之名',              // 卷名，会出现在扉页和页眉
+          poet: '作者名',                // 卷尾署名
+          quote: '一句卷首引用',         // 卷首扉页中间的一句话
+          items: [
+            {
+              title: '第一首标题',
+              subtitle: '可选副标题',    // 没有可删去
+              eye: '关键词',             // 左侧竖排关键词，没有可删去
+              content: [                // 每个 [] 是一个段落；里面每行是一句
+                ['第一行正文。', '第二行正文。'],
+                ['下一段第一行。', '下一段第二行。']
+              ]
+            },
+            {
+              title: '第二首标题',
+              eye: '关键词',
+              content: [
+                ['一行示例。'],
+                ['另一段示例。']
+              ]
+            }
+          ]
+        },
+        {
+          name: '卷二之名',
+          poet: '作者名',
+          quote: '另一句引用',
+          items: [
+            {
+              title: '示例标题',
+              content: [
+                ['正文从这里开始。']
+              ]
+            }
+          ]
+        }
+      ]
+    };
+  </script>
+</head>
+<body>
+  <div class="toolbar">
+    <span class="name">新册名</span>
+    <span class="hint">打印建议：A4 · 黑白 · 缩放 100% · 单面；双面打印可装订成册</span>
+    <button type="button" onclick="window.print()">打印 / 存为 PDF</button>
+  </div>
+
+  <main class="sheets" id="sheets"></main>
+
+  <script src="../assets/chapbook.js"></script>
+</body>
+</html>

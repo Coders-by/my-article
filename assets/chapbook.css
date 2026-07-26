@@ -1,0 +1,369 @@
+/* ============================================================
+   Chapbook Styles — 通用印本打印样式
+   与 assets/chapbook.js 配套使用
+   ============================================================ */
+
+:root {
+  --bg: #e3e0d6;
+  --paper: #ffffff;
+  --ink: #1a1917;
+  --muted: #6e6c64;
+  --faint: #b6b3a8;
+  --line: #d8d5cb;
+  --serif: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: var(--serif);
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .14;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+  z-index: -1;
+}
+
+/* ---------- 屏幕工具栏 ---------- */
+.toolbar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .8rem 1.4rem;
+  background: rgba(255, 255, 255, .82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--sans);
+}
+.toolbar .name { font-size: .78rem; letter-spacing: .22em; color: var(--ink); }
+.toolbar .hint { color: var(--muted); font-size: .66rem; letter-spacing: .08em; }
+.toolbar button {
+  padding: .5rem 1.1rem;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: .7rem;
+  letter-spacing: .18em;
+  cursor: pointer;
+  transition: opacity .2s ease;
+}
+.toolbar button:hover { opacity: .82; }
+
+/* ---------- 纸张 ---------- */
+.sheets { padding: 5.5rem 0 4rem; }
+.sheet {
+  position: relative;
+  width: min(210mm, calc(100% - 32px));
+  min-height: 272mm;
+  margin: 0 auto 28px;
+  padding: 24mm 22mm 16mm;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .07), 0 18px 48px rgba(0, 0, 0, .1);
+}
+
+/* ---------- 封面 ---------- */
+.sheet.cover { padding: 26mm 24mm 16mm; }
+.sheet.cover::before,
+.sheet.cover::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+.sheet.cover::before { inset: 9mm; border: 1px solid var(--line); }
+.sheet.cover::after { inset: 10.6mm; border: 1px solid #ebe9e2; }
+
+.cover-top {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: .62rem;
+  letter-spacing: .6em;
+  text-indent: .6em;
+}
+.cover-top::after {
+  content: "";
+  flex: 1;
+  max-width: 6rem;
+  height: 1px;
+  background: var(--line);
+}
+.cover-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 6mm;
+}
+.cover-title {
+  margin: 0;
+  font-size: clamp(2.8rem, 9vw, 4.4rem);
+  font-weight: 600;
+  letter-spacing: .36em;
+  text-indent: .36em;
+  line-height: 1.25;
+}
+.cover-line {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 11rem;
+  margin: 2.2rem 0 1.8rem;
+}
+.cover-line::before,
+.cover-line::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.cover-line span { color: var(--faint); font-size: .7rem; line-height: 1; }
+.cover-sub {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: .78rem;
+  letter-spacing: .35em;
+  text-indent: .35em;
+  line-height: 1.8;
+}
+.cover-poets {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  color: var(--faint);
+  font-family: var(--sans);
+  font-size: .62rem;
+  letter-spacing: .4em;
+  text-indent: .4em;
+}
+.cover-poets::before {
+  content: "";
+  width: 2.4rem;
+  height: 1px;
+  background: var(--line);
+}
+
+/* ---------- 目录 ---------- */
+.toc-head {
+  text-align: center;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid var(--line);
+}
+.toc-head h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: .55em;
+  text-indent: .55em;
+}
+.toc-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+}
+.toc-group { padding-left: 18mm; padding-right: 18mm; }
+.toc-poet {
+  margin: 0 0 .9rem;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: .62rem;
+  letter-spacing: .45em;
+  text-indent: .45em;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid var(--line);
+}
+.toc-items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .5rem 2.2rem;
+}
+.toc-item {
+  display: flex;
+  align-items: baseline;
+  gap: .8rem;
+  padding: .32rem 0;
+  font-size: .9rem;
+  letter-spacing: .1em;
+}
+.toc-item .num {
+  width: 2.2ch;
+  color: var(--faint);
+  font-family: var(--sans);
+  font-size: .58rem;
+  letter-spacing: .05em;
+  flex-shrink: 0;
+}
+
+/* ---------- 卷首扉页 ---------- */
+.sheet.divider {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.divider-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -54%);
+  font-size: clamp(8rem, 22vw, 13rem);
+  font-weight: 700;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--line);
+  opacity: .55;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  line-height: 1;
+}
+.divider-inner { position: relative; z-index: 1; }
+.divider-label {
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: .66rem;
+  letter-spacing: .55em;
+  text-indent: .55em;
+  margin-bottom: 1.4rem;
+}
+.divider-name {
+  margin: 0;
+  font-size: 2.8rem;
+  font-weight: 600;
+  letter-spacing: .42em;
+  text-indent: .42em;
+}
+.divider-quote {
+  margin: 2rem 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  letter-spacing: .18em;
+}
+.divider-poet {
+  margin-top: 4rem;
+  color: var(--faint);
+  font-family: var(--sans);
+  font-size: .62rem;
+  letter-spacing: .35em;
+  text-indent: .35em;
+}
+
+/* ---------- 正文页 ---------- */
+.poem-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: .7rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: .62rem;
+  letter-spacing: .3em;
+}
+.poem-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem 0 1.5rem 12mm;
+  position: relative;
+}
+.sheet.long .poem-body { justify-content: flex-start; padding-top: 3.2rem; }
+.eye {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  color: var(--faint);
+  font-family: var(--sans);
+  font-size: .58rem;
+  letter-spacing: .35em;
+  text-indent: .35em;
+  user-select: none;
+}
+.eye::before {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 2.2rem;
+  background: var(--line);
+  margin: 0 auto .7rem;
+}
+.pai {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: .32em;
+  text-indent: .32em;
+  text-align: center;
+}
+.ti {
+  margin: .8rem 0 0;
+  color: var(--muted);
+  font-size: .82rem;
+  letter-spacing: .22em;
+  text-indent: .22em;
+  text-align: center;
+}
+.verses {
+  margin-top: 2.4rem;
+  display: inline-block;
+  text-align: left;
+  font-size: 1.15rem;
+  line-height: 2.1;
+}
+.sheet.medium .verses { font-size: 1.08rem; line-height: 2.0; }
+.sheet.long .verses { font-size: .94rem; line-height: 1.95; }
+.verses p { margin: 0; }
+.stanza + .stanza { margin-top: 1.1em; }
+.folio {
+  text-align: center;
+  color: var(--faint);
+  font-family: var(--sans);
+  font-size: .6rem;
+  letter-spacing: .25em;
+}
+.sheet.poem { counter-increment: poem; }
+.sheet.poem .folio::before { content: attr(data-vol) " — " counter(poem, decimal-leading-zero); }
+
+.sheets { counter-reset: poem; }
+
+/* ---------- 打印 ---------- */
+@page { size: A4; margin: 0; }
+@media print {
+  body { background: #fff; }
+  body::before { display: none; }
+  .toolbar { display: none; }
+  .sheets { padding: 0; }
+  .sheet {
+    width: 210mm;
+    min-height: 270mm;
+    margin: 0;
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+  }
+  .sheet:last-child { break-after: auto; page-break-after: auto; }
+}
+@media (max-width: 640px) {
+  .toolbar .hint { display: none; }
+  .sheet { min-height: auto; padding: 2.4rem 1.4rem; }
+  .sheet.cover { min-height: 78vh; padding: 2.4rem 1.4rem; }
+  .toc-items { grid-template-columns: 1fr; }
+  .eye { display: none; }
+}
