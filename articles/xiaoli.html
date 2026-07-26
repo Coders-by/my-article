@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4efe7">
+  <meta name="description" content="削梨：一篇关于文曲化忌、遗憾美学与语言之刀的随笔。">
+  <title>削梨｜兼答文曲化忌</title>
+  <style>
+    :root {
+      --paper: #f4efe7;
+      --paper-deep: #e9dfd2;
+      --ink: #27231f;
+      --muted: #82776d;
+      --line: rgba(63, 51, 42, .16);
+      --accent: #8f4a3a;
+      --accent-deep: #6b3226;
+      --sage: #6c8170;
+      --white: #fffaf3;
+      --shadow: 0 24px 80px rgba(64, 48, 34, .09);
+      --serif: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255, 255, 255, .85), transparent 28rem),
+        radial-gradient(circle at 88% 26%, rgba(143, 74, 58, .07), transparent 30rem),
+        var(--paper);
+      font-family: var(--serif);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      transition: background .5s ease, color .5s ease;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .16;
+      z-index: 10;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.1'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+    }
+
+    a { color: inherit; }
+    button { font: inherit; }
+
+    .progress {
+      position: fixed;
+      inset: 0 0 auto;
+      height: 3px;
+      z-index: 20;
+      background: rgba(39, 35, 31, .07);
+    }
+    .progress span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #c48c5a);
+      transition: width .12s ease-out;
+    }
+
+    .masthead {
+      width: min(1080px, calc(100% - 48px));
+      min-height: 88vh;
+      margin: 0 auto;
+      padding: 7rem 0 5.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .eyebrow, .side-label, .section-kicker, .chapter-index, .meta, .utility {
+      font-family: var(--sans);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .eyebrow {
+      margin: 0 0 1.4rem;
+      color: var(--accent-deep);
+      font-size: .72rem;
+      font-weight: 700;
+    }
+    h1 {
+      max-width: 6em;
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(5rem, 14vw, 10rem);
+      font-weight: 500;
+      letter-spacing: .08em;
+      line-height: 1;
+    }
+    .title-dot { color: var(--accent); }
+    .subtitle {
+      margin: 1.6rem 0 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      letter-spacing: .25em;
+      text-indent: .25em;
+    }
+    .dek {
+      max-width: 30rem;
+      margin: 2.8rem auto 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.5vw, 1.18rem);
+      line-height: 2.1;
+    }
+    .scroll-cue {
+      position: absolute;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .68rem;
+      letter-spacing: .14em;
+    }
+    .scroll-cue i {
+      display: block;
+      width: 2.5rem;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .reader {
+      width: min(720px, calc(100% - 48px));
+      margin: 0 auto;
+      padding-bottom: 7rem;
+    }
+
+    article { min-width: 0; }
+    .opening {
+      padding: 1rem 0 5.5rem;
+      border-top: 1px solid var(--line);
+    }
+    .section-kicker {
+      margin: 0 0 1.5rem;
+      color: var(--accent);
+      font-size: .65rem;
+      font-weight: 700;
+    }
+    article p {
+      margin: 0 0 1.55rem;
+      font-size: 1.12rem;
+      line-height: 2.05;
+    }
+    .opening > p:first-of-type {
+      font-size: 1.3rem;
+      line-height: 1.9;
+    }
+    .opening > p:first-of-type::first-letter {
+      float: left;
+      font-size: 3.4em;
+      line-height: 1;
+      padding: .1em .18em 0 0;
+      font-weight: 700;
+      color: var(--accent-deep);
+    }
+
+    blockquote {
+      position: relative;
+      margin: 2.6rem 0 2.8rem;
+      padding: 1.2rem 1.8rem 1.25rem 2rem;
+      border-left: 2px solid var(--accent);
+      color: #493a31;
+      background: rgba(255, 250, 243, .42);
+      font-size: 1.18rem;
+      line-height: 1.95;
+    }
+    blockquote::before {
+      content: "“";
+      position: absolute;
+      top: -.2rem;
+      left: .3rem;
+      color: rgba(143, 74, 58, .22);
+      font-family: Georgia, serif;
+      font-size: 4.3rem;
+      line-height: 1;
+    }
+    blockquote.pull {
+      max-width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+      border-left: 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      padding: 2rem 1.5rem;
+      font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+      line-height: 1.85;
+      color: var(--accent-deep);
+    }
+    blockquote.pull::before { display: none; }
+
+    .section-break {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin: 4rem 0;
+      color: var(--faint);
+      font-size: .9rem;
+    }
+    .section-break::before,
+    .section-break::after {
+      content: "";
+      width: 3rem;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .ending {
+      padding: .7rem 0 1rem;
+      text-align: center;
+    }
+    .ending .last-line {
+      margin-top: 3rem;
+      color: var(--accent-deep);
+      font-size: clamp(1.5rem, 3.2vw, 2.2rem);
+      line-height: 1.75;
+    }
+    .ending .last-line::before {
+      content: "";
+      display: block;
+      width: 3rem;
+      height: 1px;
+      margin: 0 auto 1.3rem;
+      background: var(--accent);
+    }
+
+    footer {
+      width: min(720px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 2rem 0 3rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1.5rem;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .68rem;
+      letter-spacing: .1em;
+      border-top: 1px solid var(--line);
+    }
+    .utility {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .65rem .8rem;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: transparent;
+      font-size: .6rem;
+      letter-spacing: .12em;
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease, border-color .2s ease;
+    }
+    .utility:hover { color: var(--accent-deep); border-color: var(--accent); background: rgba(255, 250, 243, .6); }
+    .utility svg { width: .9rem; height: .9rem; }
+
+    [data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s ease; }
+    [data-reveal].visible { opacity: 1; transform: none; }
+
+    ::selection { background: var(--accent); color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      [data-reveal] { opacity: 1; transform: none; transition: none; }
+      .utility { transition: none; }
+    }
+    @media (max-width: 640px) {
+      .masthead { min-height: auto; padding: 6rem 0 7rem; }
+      .scroll-cue { bottom: 2rem; }
+      .reader { width: min(100% - 36px, 720px); }
+      article p { font-size: 1.04rem; line-height: 2; }
+      .opening { padding-bottom: 3.8rem; }
+      blockquote { padding: 1.2rem 1.2rem 1.2rem 1.5rem; font-size: 1.05rem; }
+      footer { display: block; }
+      footer > * + * { margin-top: 1rem; }
+    }
+    @media print {
+      body { background: #fff; }
+      body::before, .progress, .scroll-cue, footer { display: none; }
+      .masthead { min-height: auto; padding: 3rem 0 4rem; }
+      .reader { display: block; }
+      article { max-width: 720px; margin: 0 auto; }
+      [data-reveal] { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+  <div class="page-shell">
+    <header class="masthead">
+      <p class="eyebrow">随笔 · Essay</p>
+      <h1>削<span class="title-dot">·</span>梨</h1>
+      <p class="subtitle">兼答文曲化忌</p>
+      <p class="dek">我喜欢收集遗憾，因为它们有种独特的美感。完美的故事大抵相似，遗憾的残章各有精彩。</p>
+      <div class="scroll-cue"><i></i>向下阅读</div>
+    </header>
+
+    <main class="reader">
+      <article>
+        <section class="opening" data-reveal>
+          <p class="section-kicker">Preface</p>
+          <p>我喜欢收集遗憾，因为它们有种独特的美感。</p>
+          <p>完美的故事大抵相似，遗憾的残章各有精彩。过去的人生里，我常自封“遗憾美学践行者”：先让自己经历遗憾，再用故事把它美化。很难说这些经历究竟是有心还是无意，反正这些年悄悄攒了不少。以前看不太懂，后来年纪渐长，又爱研究点玄学，才发现这件事，早就有颗星星替我点破了。</p>
+          <p>命盘上写着一句批语：文曲旺，而离心自化忌。</p>
+        </section>
+
+        <section data-reveal>
+          <p>翻译成白话，大概是这样的——</p>
+          <p>聊天说话容易有氛围，有情绪，有一种灵魂共振的错觉。初遇时惊艳，聊着聊着便觉得相见恨晚，以为终于遇见了知己。可一旦话题从诗和远方落回柴米油盐，那份惊艳便开始褪色。于是心里冒出一句：“你不懂我了。”</p>
+          <p>很多时候，对方甚至什么都没做，我却已经默默退场。后来再把这段经历写成故事，替它镀上一层遗憾的光。仿佛这样，它就值得被怀念；仿佛这样，自己就格外深情。</p>
+          <p>以前我一直觉得，“化忌”是个很可怕的词。</p>
+          <p>后来才慢慢明白，所谓“忌”，从来不是失去，而是能量流向了错误的地方。</p>
+          <p>文曲旺而化忌，不是说肚子里没墨水、作文写不及格，而是说文曲这股旺盛的能量，容易导向一种破坏。你会因为妙语连珠而赢得掌声，也会因为口无遮拦而刺伤别人；会因为精神共鸣而彼此靠近，也会因为过度沉溺于这种共鸣，而对平淡的日常感到失落；会因为某个夜晚的对白怦然心动，也会因为这样的对白无法日日重演，而怀疑感情已经消失。</p>
+
+          <blockquote>同样的天赋，既能成全人，也能困住人。</blockquote>
+
+          <p>后来我想到一个比喻。</p>
+          <p>语言像一把总被我握在手里的刀。平时它安安静静地躺在掌心，分量沉沉的，看不出什么锋芒；可一旦出鞘，既能切开误解，也能划破人心。说得漂亮时，它是一道干净利落的寒光；说得太快、太满时，刀刃还没来得及收稳，先见血的往往是自己。</p>
+          <p>所谓“文曲忌”，真正要修的，从来不是表达能力，而是收刀的能力——知道什么时候该入鞘，知道锋利不必时时亮着。</p>
+        </section>
+
+        <div class="section-break" aria-hidden="true">❦</div>
+
+        <section data-reveal>
+          <p>我面前其实没有敌人，只有那个总想把每一句话都磨得像刀锋一样漂亮的自己。我总希望一句话就能说明全部心意，希望一次聊天就能定义一段关系，希望一个夜晚的共鸣足以抵过漫长而琐碎的现实。可后来才发现，语言从来无法这样精确。真正重要的关系，也不会因为一次没接住的话、一个沉默的瞬间，就突然变了模样。</p>
+
+          <blockquote class="pull">故事可以承载回忆，却不必定义关系。</blockquote>
+
+          <p>如果一定要说这颗文曲星教会了我什么，大概就是：故事可以承载回忆，却不必定义关系。</p>
+          <p>遗憾里的旧时光，不需要落笔成册，不需要被反复念及，甚至不需要继续存在。</p>
+          <p>真正让我反思的，不是命盘，而是我对遗憾的执念。如果我始终相信自己喜欢收集遗憾，那么往后的人生里，我就会下意识把每一段经历，都引向遗憾的叙事。任何一次错过、任何一句没说出口的话、任何一个渐行渐远的人，都会成为我证明自己的证据。这就是“忌”——不是命运替我安排了遗憾，而是我的叙事方式，悄悄把文曲的能量导向了破坏。</p>
+        </section>
+
+        <div class="section-break" aria-hidden="true">❦</div>
+
+        <section data-reveal>
+          <p>可后来，我忽然想到另一种可能。</p>
+          <p>也许我从来就不是喜欢遗憾。我只是恰好经历过遗憾，也恰好发现了它那种难以言喻的凄美，于是习惯把镜头递给它。可镜头停留在哪里，是我的选择，不是我的宿命。</p>
+          <p>当我愿意把同样的目光投向那些没有轰轰烈烈、没有跌宕起伏，却依然温柔生长的关系时，我才发现，原来平淡也有自己的纹理，圆满也有自己的重量。</p>
+          <p>如果真是这样，那么所谓“化忌”，便不再是命运的判词，而是一道可以完成的课题。它不是让我放下表达，而是让我学会表达之外的东西；不是让我戒掉故事，而是让我不再依赖故事活着。</p>
+          <p>终有一天，那把曾经总是划向自己的刀，会慢慢变成一支笔。它依旧敏锐，依旧细腻，依旧能够写下那些难以言说的情绪。只是它终于不再急着把人生写成遗憾，而是开始如实记录生命本来的样子。</p>
+          <p>那或许，才是真正的“化忌为用”。</p>
+        </section>
+
+        <div class="section-break" aria-hidden="true">❦</div>
+
+        <section class="ending" data-reveal>
+          <p>可我又想了想。“本来的样子”这个词，其实比“遗憾美学”更难。遗憾至少有个现成的滤镜——凄美、残缺、被理解。而“如实”意味着我要接住那些既不凄美也不圆满、甚至连“纹理”都谈不上的段落：聊不下去的饭局、没吵起来的冷战、某个人我就是慢慢不喜欢了但原因平庸到讲不出口。这些入不了故事，却占了人生大半。</p>
+          <p>所以化解这道“忌”，到最后或许不是为了把生活升华成什么了不起的东西，而是让那股曾经只愿为诗意沸腾的能量，终于肯落在柴米油盐里——不一定要被记下来，不一定要有意义。</p>
+          <p>那时候，刀真的不用再变笔了。</p>
+          <p>刀就是刀。切菜也行，削梨也行。不用每次出鞘，都得是个隐喻。</p>
+          <p class="last-line">刀就是刀。<br>切菜也行，削梨也行。</p>
+        </section>
+      </article>
+    </main>
+
+    <footer>
+      <span>削梨 · 兼答文曲化忌</span>
+      <button class="utility" id="shareButton" type="button" aria-label="复制阅读链接">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 12.5 16.5 7M8 11.5 16.5 17M7 19a3 3 0 1 1 0-6h2m6-2h2a3 3 0 1 1 0 6h-2m-5-6h6a3 3 0 1 1 0 6h-2m-6-6H6a3 3 0 1 1 0-6h2m2 3h6a3 3 0 1 1 0 6h-2"/></svg>
+        <span>复制阅读链接</span>
+      </button>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const bar = document.getElementById('progressBar');
+      const updateProgress = () => {
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = `${scrollable ? (window.scrollY / scrollable) * 100 : 0}%`;
+      };
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+      }, { rootMargin: '-10% 0px -60% 0px', threshold: 0 });
+      document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+      const shareButton = document.getElementById('shareButton');
+      shareButton.addEventListener('click', async () => {
+        const original = shareButton.querySelector('span');
+        try {
+          if (navigator.share) {
+            await navigator.share({ title: document.title, text: '削梨｜兼答文曲化忌', url: location.href });
+            return;
+          }
+          await navigator.clipboard.writeText(location.href);
+          original.textContent = '链接已复制';
+          setTimeout(() => original.textContent = '复制阅读链接', 1800);
+        } catch (_) {
+          original.textContent = '可直接分享当前文件';
+          setTimeout(() => original.textContent = '复制阅读链接', 1800);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
