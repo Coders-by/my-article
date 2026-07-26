@@ -6,6 +6,17 @@
   <meta name="theme-color" content="#f4efe7">
   <meta name="description" content="一场宵夜里的五次停顿：关于自证、表演、完整、出发，以及回到自己。">
   <title>语言停顿的间隙｜五次沉默</title>
+  <script>
+    // 首屏前应用已保存/系统偏好的主题，避免闪烁
+    (function () {
+      try {
+        var t = localStorage.getItem('pause-theme');
+        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style>
     :root {
       --paper: #f4efe7;
@@ -22,6 +33,19 @@
       --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
     }
 
+    html[data-theme="dark"] {
+      --paper: #17130f;
+      --paper-deep: #211c16;
+      --ink: #e8e2d8;
+      --muted: #9a917f;
+      --line: rgba(232, 226, 216, .14);
+      --accent: #d98a6b;
+      --accent-deep: #e0a184;
+      --sage: #8fa694;
+      --white: #241f19;
+      --shadow: 0 24px 80px rgba(0, 0, 0, .5);
+    }
+
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
@@ -34,6 +58,7 @@
       font-family: var(--serif);
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
+      transition: background .5s ease, color .5s ease;
     }
 
     body::before {
@@ -292,23 +317,46 @@
       line-height: 1.9;
     }
     .pause {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin: 3.4rem 0 0;
+      margin: 3.6rem 0 0;
+      text-align: center;
+    }
+    .ripple-box {
+      position: relative;
+      width: 4rem;
+      height: 4rem;
+      margin: 0 auto .9rem;
+    }
+    .ripple-box .ripple {
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      opacity: 0;
+      animation: ripple 3s ease-out infinite;
+    }
+    .ripple-box .ripple:nth-child(2) { animation-delay: 1s; }
+    .ripple-box .ripple:nth-child(3) { animation-delay: 2s; }
+    @keyframes ripple {
+      0% { transform: scale(.25); opacity: .6; }
+      100% { transform: scale(1.1); opacity: 0; }
+    }
+    .ripple-box .core {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: .5rem;
+      height: .5rem;
+      border-radius: 50%;
+      background: var(--accent);
+      transform: translate(-50%, -50%);
+    }
+    .pause-label {
       color: var(--muted);
       font-family: var(--sans);
       font-size: .68rem;
-      letter-spacing: .16em;
+      letter-spacing: .3em;
+      text-indent: .3em;
     }
-    .pause::before, .pause::after {
-      content: "";
-      display: block;
-      height: 1px;
-      background: var(--line);
-    }
-    .pause::before { width: 2.5rem; }
-    .pause::after { flex: 1; }
 
     .chapter-four .route-card {
       margin: 2.5rem 0 2.8rem;
@@ -421,12 +469,129 @@
     .utility:hover { color: var(--accent-deep); border-color: var(--accent); background: rgba(255, 250, 243, .6); }
     .utility svg { width: .9rem; height: .9rem; }
 
+    .meta-line {
+      margin: 1.8rem 0 0;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .72rem;
+      letter-spacing: .18em;
+    }
+
+    .chapter-header { position: relative; }
+    .chapter-bg {
+      position: absolute;
+      right: -.5rem;
+      top: 50%;
+      transform: translateY(-56%);
+      color: transparent;
+      -webkit-text-stroke: 1.5px var(--accent);
+      font-size: clamp(4.5rem, 10vw, 8rem);
+      font-weight: 700;
+      line-height: 1;
+      opacity: .13;
+      pointer-events: none;
+      user-select: none;
+      z-index: -1;
+    }
+    .ending h2 { position: relative; }
+
+    .route-card .route-line {
+      margin-top: 1.4rem;
+      display: flex;
+      align-items: center;
+    }
+    .route-card .route-line .pt {
+      width: .6rem;
+      height: .6rem;
+      border: 2px solid var(--sage);
+      border-radius: 50%;
+      background: var(--paper);
+      flex-shrink: 0;
+    }
+    .route-card .route-line .pt.end { background: var(--sage); }
+    .route-card .route-line .ln {
+      flex: 1;
+      height: 2px;
+      background: repeating-linear-gradient(90deg, var(--sage) 0 6px, transparent 6px 12px);
+      background-size: 24px 2px;
+      opacity: .7;
+      animation: routeMove 1.6s linear infinite;
+    }
+    @keyframes routeMove {
+      from { background-position: 0 0; }
+      to { background-position: 24px 0; }
+    }
+    .route-card .route-ends {
+      display: flex;
+      justify-content: space-between;
+      margin-top: .55rem;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .66rem;
+      letter-spacing: .1em;
+    }
+
+    .fab {
+      position: fixed;
+      right: 1.6rem;
+      bottom: 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+      z-index: 30;
+    }
+    .fab button {
+      width: 2.75rem;
+      height: 2.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--muted);
+      background: var(--paper);
+      box-shadow: 0 8px 22px rgba(64, 48, 34, .12);
+      font-family: var(--sans);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform .25s ease, color .2s ease, border-color .2s ease, opacity .3s ease;
+    }
+    .fab button:hover { color: var(--accent-deep); border-color: var(--accent); transform: translateY(-3px); }
+    #toTop { opacity: 0; pointer-events: none; }
+    #toTop.show { opacity: 1; pointer-events: auto; }
+
+    html[data-theme="dark"] body {
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255, 255, 255, .05), transparent 28rem),
+        radial-gradient(circle at 88% 26%, rgba(217, 138, 107, .07), transparent 30rem),
+        var(--paper);
+    }
+    html[data-theme="dark"] body::before { opacity: .1; mix-blend-mode: screen; }
+    html[data-theme="dark"] .progress { background: rgba(255, 255, 255, .08); }
+    html[data-theme="dark"] .masthead::after {
+      border-color: rgba(217, 138, 107, .3);
+      box-shadow: 0 0 0 2.2rem rgba(217, 138, 107, .04), 0 0 0 4.6rem rgba(217, 138, 107, .028);
+    }
+    html[data-theme="dark"] .chapter blockquote { color: #d7cfc2; background: rgba(38, 32, 26, .5); }
+    html[data-theme="dark"] .dialogue { color: #d7cfc2; }
+    html[data-theme="dark"] .route-card { border-color: rgba(143, 166, 148, .3); background: rgba(108, 129, 112, .1); }
+    html[data-theme="dark"] .chapter-five {
+      border-color: rgba(217, 138, 107, .28);
+      background: linear-gradient(135deg, rgba(38, 32, 26, .7), rgba(30, 25, 20, .5));
+    }
+    html[data-theme="dark"] .chapter-five blockquote { background: rgba(217, 138, 107, .08); }
+    html[data-theme="dark"] .utility:hover { background: rgba(38, 32, 26, .6); }
+    html[data-theme="dark"] .fab button { box-shadow: 0 8px 22px rgba(0, 0, 0, .45); }
+
     [data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s ease; }
     [data-reveal].visible { opacity: 1; transform: none; }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       [data-reveal] { opacity: 1; transform: none; transition: none; }
-      .toc a, .utility { transition: none; }
+      .toc a, .utility, .fab button { transition: none; }
+      .ripple-box .ripple { animation: none; opacity: .35; transform: scale(.55); }
+      .ripple-box .ripple:nth-child(2), .ripple-box .ripple:nth-child(3) { display: none; }
+      .route-card .route-line .ln { animation: none; }
     }
     @media (max-width: 800px) {
       .masthead { min-height: auto; padding: 6rem 0 7rem; display: block; }
@@ -456,7 +621,7 @@
     }
     @media print {
       body { background: #fff; }
-      body::before, .progress, .toc, .scroll-cue, footer, .hero-note { display: none; }
+      body::before, .progress, .toc, .scroll-cue, footer, .hero-note, .fab, .chapter-bg { display: none; }
       .masthead { min-height: auto; padding: 2rem 0 3rem; display: block; }
       .masthead::after { display: none; }
       .reader { display: block; }
@@ -474,6 +639,7 @@
         <p class="eyebrow">一场宵夜里的五次停顿</p>
         <h1>语言停顿的<span class="title-dot">·</span>间隙</h1>
         <p class="dek">笑声的尾巴还在空气里飘，下一句话却没跟上来。那几秒钟里，每个人都在假装自己刚好口渴、刚好在看菜单、刚好发现指甲长了三毫米。</p>
+        <p class="meta-line">约 4200 字 · 阅读需 9 分钟 · 深圳一夜</p>
       </div>
       <div class="hero-note">
         后来我数了一下，那天晚上我们一共沉默了五次。<br>每一次，都不太一样。
@@ -506,7 +672,7 @@
         </section>
 
         <section class="chapter" id="self-proof" data-reveal>
-          <div class="chapter-header"><span class="chapter-index">第一层</span><h2>自证</h2></div>
+          <div class="chapter-header"><span class="chapter-index">第一层</span><h2>自证</h2><span class="chapter-bg" aria-hidden="true">壹</span></div>
           <blockquote>我在同事圈中沉默的次数好像越来越多了。不是喜欢沉默，是选择了沉默。</blockquote>
           <p>小米先开口。</p>
           <blockquote>有时候被人贴上一个先入为主的标签，然后让你自证清白，那种感觉真的很无力。</blockquote>
@@ -521,11 +687,17 @@
           <p>“哈哈哈哈笑死了！”小米拍了一下桌子，“你倒适合去说脱口秀，没准儿真能出圈。”</p>
           <p>“那还是算了。牛马比较适合待在圈里。”</p>
           <p>“哈哈哈哈……”</p>
-          <div class="pause">第一次沉默</div>
+          <div class="pause">
+            <div class="ripple-box" aria-hidden="true">
+              <span class="ripple"></span><span class="ripple"></span><span class="ripple"></span>
+              <span class="core"></span>
+            </div>
+            <div class="pause-label">第一次沉默</div>
+          </div>
         </section>
 
         <section class="chapter" id="performance" data-reveal>
-          <div class="chapter-header"><span class="chapter-index">第二层</span><h2>表演</h2></div>
+          <div class="chapter-header"><span class="chapter-index">第二层</span><h2>表演</h2><span class="chapter-bg" aria-hidden="true">贰</span></div>
           <p>我突然悟道：原来笑久了就会沉默；原来看似精彩的漂亮话，也容易让人恍惚。</p>
           <p>在深圳，这座效率至上的城市，坐下来喝杯茶，谈的也是怎么搞副业。至于好不好喝？最近怎样？问一问就行了。大家记不住那么多琐碎的日常，也接不住那么多起伏的情绪——那些东西太耽误搞钱。</p>
           <p>“我毕业以来，一直在同一家外企待着。”小汤喝着汤，慢悠悠地开口，“领导人很好，相处简单，出去玩还主动给我们开门让我们坐老板位。所以对于恶心的职场人和事，我确实没有太多体感。但共情还是有的——毕竟刷了那么多宫斗剧。”</p>
@@ -542,11 +714,17 @@
           <p>第二次沉默。</p>
           <p>“要不干个杯？虽然什么都没说，但还是辛苦我自己了。”</p>
           <p>碰杯声还是那么清脆。</p>
-          <div class="pause">第二次沉默</div>
+          <div class="pause">
+            <div class="ripple-box" aria-hidden="true">
+              <span class="ripple"></span><span class="ripple"></span><span class="ripple"></span>
+              <span class="core"></span>
+            </div>
+            <div class="pause-label">第二次沉默</div>
+          </div>
         </section>
 
         <section class="chapter" id="wholeness" data-reveal>
-          <div class="chapter-header"><span class="chapter-index">第三层</span><h2>完整</h2></div>
+          <div class="chapter-header"><span class="chapter-index">第三层</span><h2>完整</h2><span class="chapter-bg" aria-hidden="true">叁</span></div>
           <p>“你们择偶，要找同频的，还是互补的？”</p>
           <p>不知道谁突然问了一句。</p>
           <p>“保证内核一致，然后各自精彩吧。”我说。</p>
@@ -565,11 +743,17 @@
           <p>“始于巧合，终于巧合。因为深圳而遇见，也因为深圳而分开。前者是地理，后者是心理……”我一边嚼着鱼片一边说，“怎么样，是不是很有道理？”</p>
           <p>“……”</p>
           <p>第三次沉默。关于关系，以及我们所选择的路。</p>
-          <div class="pause">第三次沉默</div>
+          <div class="pause">
+            <div class="ripple-box" aria-hidden="true">
+              <span class="ripple"></span><span class="ripple"></span><span class="ripple"></span>
+              <span class="core"></span>
+            </div>
+            <div class="pause-label">第三次沉默</div>
+          </div>
         </section>
 
         <section class="chapter chapter-four" id="departure" data-reveal>
-          <div class="chapter-header"><span class="chapter-index">第四层</span><h2>出发</h2></div>
+          <div class="chapter-header"><span class="chapter-index">第四层</span><h2>出发</h2><span class="chapter-bg" aria-hidden="true">肆</span></div>
           <p>小汤问起自由职业的事。</p>
           <p>“我有个朋友，去年裸辞了。现在满世界跑，朋友圈全是定位打卡。上周在清迈，这周在大理，下周说要去伊斯坦布尔。”</p>
           <p>她说着，眼睛亮了一下。</p>
@@ -581,6 +765,10 @@
             <div class="route-label">NAVIGATION / NOW</div>
             <div class="route-title">西藏</div>
             <div class="route-time">驾车约 49 小时</div>
+            <div class="route-line" aria-hidden="true">
+              <span class="pt"></span><span class="ln"></span><span class="pt end"></span>
+            </div>
+            <div class="route-ends"><span>深圳 · 当前位置</span><span>拉萨</span></div>
           </div>
           <p>“你在干嘛？”</p>
           <p>“测试一下。”我说，“看看我现在想走的话，能不能走。”</p>
@@ -619,11 +807,17 @@
           <p>大家笑了。</p>
           <p>笑声散去以后，第四次沉默。</p>
           <p>我突然意识到，自己好像确实想走。只是还不知道，走了以后要去哪。</p>
-          <div class="pause">第四次沉默</div>
+          <div class="pause">
+            <div class="ripple-box" aria-hidden="true">
+              <span class="ripple"></span><span class="ripple"></span><span class="ripple"></span>
+              <span class="core"></span>
+            </div>
+            <div class="pause-label">第四次沉默</div>
+          </div>
         </section>
 
         <section class="chapter chapter-five" id="self" data-reveal>
-          <div class="chapter-header"><span class="chapter-index">第五层</span><h2>回到自己</h2></div>
+          <div class="chapter-header"><span class="chapter-index">第五层</span><h2>回到自己</h2><span class="chapter-bg" aria-hidden="true">伍</span></div>
           <p>“那你到底想不想走？”小米问。</p>
           <p>我没有立刻回答。</p>
           <p>这些年，我已经习惯了用“我在哪上班”来解释“我是谁”，用职位、薪资和项目经验给自己钉上几个坐标。如果把这些东西都摘掉，我手里还剩什么？</p>
@@ -640,12 +834,18 @@
           <p>西藏还在地图上，公司也还在，下周一的例会、季度OKR、房租、社保，统统不会因为一顿饭而消失。可至少这一刻，我还可以把鱼吃掉，把茶喝完，然后明天继续上班，也继续想。</p>
           <p>也许所谓自由，并不是先逃离什么地方，而是有一天，你终于拥有了一点真正属于自己的东西。那时你可以选择去清迈、大理，或者西藏，也可以选择留下来——因为你留下，不再只是因为没有办法走。</p>
           <p class="final-pause">第五次沉默。<br>不是无话可说——是该打烊了。</p>
-          <div class="pause">第五次沉默</div>
+          <div class="pause">
+            <div class="ripple-box" aria-hidden="true">
+              <span class="ripple"></span><span class="ripple"></span><span class="ripple"></span>
+              <span class="core"></span>
+            </div>
+            <div class="pause-label">第五次沉默</div>
+          </div>
         </section>
 
         <section class="ending" id="story" data-reveal>
           <p class="section-kicker">Epilogue / Story</p>
-          <h2>尾声：故事</h2>
+          <h2>尾声：故事<span class="chapter-bg" aria-hidden="true">尾</span></h2>
           <p>散步回到小区楼下，有两个人拿着辣条从我们面前走过去。</p>
           <p>熟悉的味道在晚风里弥散，我脱口而出：“卫龙。”</p>
           <p>她俩同时朝我比了个大拇指。</p>
@@ -667,6 +867,10 @@
         <span>复制阅读链接</span>
       </button>
     </footer>
+  </div>
+  <div class="fab">
+    <button id="themeToggle" type="button" aria-label="切换到夜间模式">☾</button>
+    <button id="toTop" type="button" aria-label="回到顶部">↑</button>
   </div>
   <script>
     (() => {
@@ -693,6 +897,30 @@
       }, { rootMargin: '-15% 0px -65% 0px', threshold: 0 });
       document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
       sections.forEach(section => observer.observe(section));
+
+      const rootEl = document.documentElement;
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      const themeToggle = document.getElementById('themeToggle');
+      const syncThemeUI = () => {
+        const dark = rootEl.getAttribute('data-theme') === 'dark';
+        themeToggle.textContent = dark ? '☀' : '☾';
+        themeToggle.setAttribute('aria-label', dark ? '切换到日间模式' : '切换到夜间模式');
+        themeColor.setAttribute('content', dark ? '#17130f' : '#f4efe7');
+      };
+      syncThemeUI();
+      themeToggle.addEventListener('click', () => {
+        const dark = rootEl.getAttribute('data-theme') !== 'dark';
+        if (dark) rootEl.setAttribute('data-theme', 'dark');
+        else rootEl.removeAttribute('data-theme');
+        try { localStorage.setItem('pause-theme', dark ? 'dark' : 'light'); } catch (_) {}
+        syncThemeUI();
+      });
+
+      const toTop = document.getElementById('toTop');
+      window.addEventListener('scroll', () => {
+        toTop.classList.toggle('show', window.scrollY > 600);
+      }, { passive: true });
+      toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
       const shareButton = document.getElementById('shareButton');
       shareButton.addEventListener('click', async () => {
