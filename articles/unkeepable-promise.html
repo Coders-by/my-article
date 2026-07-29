@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f2ec">
+  <meta name="description" content="守不住的承诺：选美、阈值，与 1997 年的泰铢。沙盘《守住泰铢》的深度后续阅读。">
+  <title>守不住的承诺｜深度阅读</title>
+  <style>
+    /* ============================================================
+       长读文章 · 自包含。与沙盘同源（纸感 + 档案红 + 等宽数值），
+       但更沉、更窄、更"讲解"。
+       ============================================================ */
+    :root {
+      --bg: #f4f2ec;
+      --paper: #fbfaf6;
+      --ink: #23211d;
+      --muted: #6b6960;
+      --faint: #a8a59b;
+      --line: #dcd9cf;
+      --risk: #9e3b2f;
+      --annotation: #43525e;
+      --serif: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --mono: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: var(--serif);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.95;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .1;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+      z-index: -1;
+    }
+
+    .sheet {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: clamp(48px, 9vw, 96px) 24px 96px;
+    }
+
+    /* ---------- 文章头 ---------- */
+    .kicker {
+      margin: 0 0 1.4rem;
+      color: var(--risk);
+      font-family: var(--sans);
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .3em;
+      text-indent: .3em;
+    }
+    h1.title {
+      margin: 0;
+      font-size: clamp(2.2rem, 6vw, 3.1rem);
+      font-weight: 600;
+      letter-spacing: .02em;
+      line-height: 1.3;
+    }
+    .dek {
+      margin: 1.2rem 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.7;
+      letter-spacing: .02em;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .8rem;
+      margin: 2rem 0 0;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--line);
+      color: var(--faint);
+      font-family: var(--sans);
+      font-size: .62rem;
+      letter-spacing: .14em;
+    }
+    .meta .sep { color: var(--line); }
+
+    /* ---------- 正文 ---------- */
+    .lead {
+      margin: 2.4rem 0 0;
+      font-size: 1.16rem;
+      line-height: 2;
+      color: #2a2824;
+    }
+    p { margin: 0 0 1.15rem; font-size: 1.04rem; line-height: 2; color: #2a2824; }
+    p:last-child { margin-bottom: 0; }
+
+    h2 {
+      margin: 3.2rem 0 1.3rem;
+      font-size: 1.34rem;
+      font-weight: 600;
+      letter-spacing: .03em;
+      line-height: 1.5;
+      display: flex;
+      align-items: baseline;
+      gap: .8rem;
+    }
+    h2 .n {
+      flex-shrink: 0;
+      color: var(--risk);
+      font-family: var(--mono);
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    /* ---------- 引文 / 落句 ---------- */
+    blockquote.pull {
+      margin: 2rem 0;
+      padding: .3rem 0 .3rem 1.3rem;
+      border-left: 3px solid var(--risk);
+      font-size: 1.14rem;
+      line-height: 1.9;
+      color: #23211d;
+    }
+    blockquote.pull p { margin: 0; font-size: inherit; line-height: inherit; }
+    blockquote.pull + blockquote.pull { margin-top: -1rem; }
+
+    /* ---------- 阈值图 ---------- */
+    figure {
+      margin: 2.2rem 0;
+      padding: 1.6rem 1.4rem 1.3rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+    figure .flabel {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin: 0 0 1.3rem;
+    }
+    figure .flabel .name { font-size: .96rem; }
+    figure .flabel .scale { color: var(--faint); font-family: var(--sans); font-size: .56rem; letter-spacing: .14em; }
+    .ruler-track { position: relative; height: 44px; margin: 0 .2rem; }
+    .ruler-line { position: absolute; left: 0; right: 0; top: 12px; height: 1px; background: var(--line); }
+    .ruler-tick { position: absolute; top: 6px; width: 1px; height: 12px; background: var(--faint); }
+    .ruler-tick span { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: .58rem; color: var(--faint); white-space: nowrap; }
+    .ruler-tick.thr { background: var(--risk); height: 22px; top: 1px; }
+    .ruler-tick.thr span { color: var(--risk); font-family: var(--sans); font-weight: 700; font-size: .58rem; letter-spacing: .06em; }
+    .ruler-dot { position: absolute; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--risk); border: 2px solid var(--paper); box-shadow: 0 0 0 1px var(--risk); transform: translateX(-50%); }
+    .ruler-dot span { position: absolute; top: -1.6rem; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: .72rem; color: var(--risk); font-weight: 700; white-space: nowrap; }
+    figure figcaption { margin: 1.5rem 0 0; color: var(--muted); font-size: .82rem; line-height: 1.7; font-style: italic; }
+
+    /* ---------- 四杠杆分块 ---------- */
+    .levers { display: grid; gap: 1.2rem; margin: 1.6rem 0; }
+    .lever { padding: 1.3rem 1.4rem; border: 1px solid var(--line); background: var(--paper); }
+    .lever h3 { margin: 0 0 .6rem; font-size: 1.04rem; font-weight: 600; letter-spacing: .02em; display: flex; align-items: baseline; gap: .5rem; }
+    .lever h3 .n { color: var(--risk); font-family: var(--mono); font-size: .82rem; }
+    .lever p { margin: 0; font-size: .96rem; line-height: 1.85; }
+
+    /* ---------- 旁注 ---------- */
+    aside.note {
+      margin: 1.8rem 0;
+      padding: .2rem 0 .2rem 1.1rem;
+      border-left: 2px solid var(--annotation);
+      color: var(--annotation);
+      font-size: .92rem;
+      line-height: 1.8;
+      font-style: italic;
+    }
+
+    /* ---------- 文章尾 / 交叉链接 ---------- */
+    .essay-end { margin: 3.6rem 0 0; padding-top: 2.2rem; border-top: 1px solid var(--line); }
+    .essay-end p { color: var(--muted); font-size: .98rem; }
+    .crosslinks { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.4rem; }
+    .crosslinks a {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .8rem 1.3rem;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: .68rem;
+      letter-spacing: .16em;
+      transition: opacity .2s ease;
+    }
+    .crosslinks a:hover { opacity: .82; }
+    .crosslinks a.ghost { background: transparent; color: var(--ink); }
+
+    /* ---------- 门槛图：≥1 危险区 ---------- */
+    .ruler-zone { position: absolute; left: 33.3%; right: 0; top: 7px; height: 11px; background: rgba(158, 59, 47, .13); border-radius: 2px; }
+
+    /* ---------- 杠杆卡：保护 / 付账 ---------- */
+    .lever-bill { display: grid; grid-template-columns: auto 1fr; gap: .2rem .8rem; margin: 0 0 .85rem; padding-bottom: .75rem; border-bottom: 1px solid var(--line); font-size: .82rem; line-height: 1.6; }
+    .lever-bill dt { color: var(--muted); font-family: var(--sans); font-size: .58rem; letter-spacing: .14em; align-self: center; }
+    .lever-bill dd { margin: 0; color: #2a2824; }
+    .lever-bill dt.pay { color: var(--risk); }
+
+    /* ---------- 立柱引文（全文铰链） ---------- */
+    blockquote.pull.pillar { border-left: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; padding: 1.6rem 0; margin: 2.6rem 0; }
+    blockquote.pull.pillar p { font-size: clamp(1.3rem, 4vw, 1.6rem); line-height: 1.5; letter-spacing: .04em; color: var(--risk); }
+
+    /* ---------- 空头闭环图 ---------- */
+    .loop-steps { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin: 0; }
+    .loop-steps .step { display: inline-flex; align-items: center; gap: .45rem; padding: .45rem .8rem; font-family: var(--mono); font-size: .8rem; color: var(--ink); background: var(--paper); border: 1px solid var(--line); }
+    .loop-steps .step i { font-style: normal; font-family: var(--sans); font-size: .6rem; font-weight: 700; color: var(--risk); width: 1rem; height: 1rem; line-height: 1rem; text-align: center; border: 1px solid var(--risk); border-radius: 50%; }
+    .loop-steps .arr { color: var(--faint); font-family: var(--sans); font-size: .9rem; }
+
+    @media (max-width: 560px) {
+      .sheet { padding: 40px 20px 64px; }
+      h2 { font-size: 1.22rem; }
+      .ruler-tick.thr .full { display: none; }
+      .loop-steps .step { font-size: .74rem; padding: .4rem .65rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <article class="sheet">
+    <p class="kicker">E C O N O M Y · 深度阅读</p>
+    <h1 class="title">守不住的承诺</h1>
+    <p class="dek">选美、阈值，与 1997 年的泰铢。这是互动沙盘《守住泰铢》的后续讲解--把沙盘没有展开的那一半，放回来。</p>
+    <div class="meta">
+      <span>金融 · 危机</span><span class="sep">／</span>
+      <span>1997 · THAILAND</span><span class="sep">／</span>
+      <span>约 20 min</span>
+    </div>
+
+    <p class="lead">你刚在沙盘里做了两次选择。第一次，决定那 10 万泰铢换不换美元；第二次，决定央行优先守住什么。然后你看见：你的选择什么都没改变。无论你持汇还是换汇，短期外债对储备的那条线，都被跨过了。</p>
+
+    <p>这不是沙盘在耍你。这是 1997 年的真实形状。一个人换不出一场危机。但如果危机不是你造成的，那是谁造成的？常见的三个答案--投机者、恐慌、坏政策--都漏了同一个东西。</p>
+
+    <blockquote class="pull"><p>危机不是恐慌制造的。恐慌到处都有，大多数时候自己就散了。危机，是恐慌撞上了一条无法无限兑现的承诺。而一条承诺能不能兑现，常常是一个可以算出来的流动性问题。</p></blockquote>
+
+    <h2><span class="n">01</span>选美：普遍的人性，但不是危机</h2>
+    <p>凯恩斯在《就业、利息和货币通论》第十二章里讲过一个报纸选美比赛：读者要从一百张脸里挑出最美的六个，谁的选择最接近全体平均，谁拿奖。聪明人很快发现，这不是在选自己觉得美的脸，而是在猜别人会选什么--再进一步，猜别人猜别人会选什么。这件事可以无穷后退下去。</p>
+    <p>凯恩斯说，专业投资就像这场选美。这常被读成"市场全是非理性投机"。但选美其实是一种理性的协调：当你不知道一只股票、一种货币值多少，却能观察到别人怎么看，跟着别人的判断走，是信息不足时的合理策略。</p>
+    <p>A 股的某次行情是这种选美的纯案。一只股票涨了 8%，你看到别人在追，你猜别人还会追，于是你也追；你的追又成了别人眼里的信号。上涨自我强化，下跌也是。这里面没有人是愚蠢的--每个人都在用可得的信息做合理的事。</p>
+    <p>但 A 股的选美有一个常被忽略的性质：它是自限的。它的断点是杠杆，不是承诺。融资融券、伞形信托把借贷嵌进了持仓：股价跌到维持担保比例之下，券商强制平仓；被迫卖出又把股价往下砸，触发下一批平仓。这是一台机器--上涨自我强化，下跌也是，但机器烧光杠杆就停。也没有一条像固定汇率那样的承诺（按需、无限量、照单全收）横在中间。选美制造波动、制造泡沫、制造痛苦，但它没有一个"必须兑现、否则违约"的外部断点。</p>
+    <p>所以选美本身不是危机。它是普遍的人性。它需要撞上一个东西，才会变成危机。</p>
+
+    <h2><span class="n">02</span>承诺：把选美变成攻击的那一刀</h2>
+    <p>固定汇率是另一种东西。它是这样一条承诺：任何人，任何时候，都可以按一个固定的价格，把手里的泰铢换成美元，而央行承诺照单全收--不限量。</p>
+    <p>这条承诺的背后，是一笔有限的库存：外汇储备。</p>
+    <p>把这两件事放在一起，就能看见危险。承诺是无限的，库存是有限的。只要没人来兑现，这条承诺可以一直挂在那里，像一座没人推的门。但一旦有人开始怀疑"库存够不够兑现"，门就被推了。</p>
+    <p>但怀疑不是凭空来的。它有具体的种子：1996 年起泰国出口开始下滑，电子需求转冷；经常账户赤字扩大，靠短期资本流入填补；曼谷写字楼空置率上升；1997 年初一批财务公司摇摇欲坠，政府被迫介入。这些都是公开可见的。最早撤退的人不是在猜，而是在读账--当这些数字让"25 泰铢能守多久"从信念变成算术题，怀疑就有了落脚点。</p>
+    <p>怀疑一旦出现，赔率就变成单向的--而这条不对称，正是承诺本身塑造的。空头是一个闭环：借入泰铢，立刻换成美元；等泰铢贬值，再用更少的美元买回泰铢还债，差额落袋。央行守 25，意味着泰铢很难涨过 25，你的上方亏损被这条承诺封顶；可一旦 25 破了，下方几乎无底。亏被承诺封顶，赚几乎无限--是这条承诺，把一个本来对称的赌注，塑成了交易员梦寐以求的单向。</p>
+    <figure class="loop">
+      <div class="flabel"><span class="name">空头闭环</span><span class="scale">承诺如何把赌注塑成单向</span></div>
+      <div class="loop-steps">
+        <span class="step"><i>1</i>借入泰铢</span>
+        <span class="arr" aria-hidden="true">→</span>
+        <span class="step"><i>2</i>换成美元</span>
+        <span class="arr" aria-hidden="true">→</span>
+        <span class="step"><i>3</i>等 25 破</span>
+        <span class="arr" aria-hidden="true">→</span>
+        <span class="step"><i>4</i>低价买回</span>
+        <span class="arr" aria-hidden="true">→</span>
+        <span class="step"><i>5</i>还债·落袋</span>
+      </div>
+      <figcaption>利润来自第二步按 25 卖出、第四步低价买回之间的差--而这个差，只在承诺破掉时才出现。</figcaption>
+    </figure>
+    <p>于是，弥散的选美，突然变成了对一支有限守军的协同冲锋。每个人都在猜"别人会不会先换"，每个人都想比别人先换。这不是索罗斯的恶意，是承诺结构本身，把人群的信念变成了一致的攻击方向。索罗斯只是看清楚了这道算术题，并且下注下得大。</p>
+    <aside class="note">把危机归给"投机者"或"恐慌"，都漏了中间这一步。是那条"无限承诺 ＋ 有限库存"的结构，把无害的选美变成了致命的冲击。</aside>
+
+    <h2><span class="n">03</span>阈值：守不守得住，是算术题</h2>
+    <p>那么，库存够不够兑现，能不能算出来？能。这就是 Greenspan-Guidotti 规则：一个国家的短期外债，不应该超过它的外汇储备。比值等于 1，是"守得住"和"守不住"的分水岭。</p>
+    <p>为什么是短期外债对储备，而不是债务对 GDP，或别的什么？因为这是一个流动性问题，不是偿付能力问题。偿付能力问的是"长期看还得起吗"，流动性问的是"现在，门口排队的人，你兑不兑得出来"。固定汇率的承诺是按需兑现的，所以决定它能不能守的，是此刻的流动性，不是未来的偿付能力。</p>
+
+    <figure>
+      <div class="flabel"><span class="name">短期外债 / 外汇储备</span><span class="scale">GREENSPAN-GUIDOTTI · 阈值 = 1</span></div>
+      <div class="ruler-track">
+        <div class="ruler-zone" aria-hidden="true"></div>
+        <div class="ruler-line"></div>
+        <div class="ruler-tick" style="left:0%"><span>0.8</span></div>
+        <div class="ruler-tick thr" style="left:33.3%"><span>1.0 <span class="full">· 守得住的界线</span></span></div>
+        <div class="ruler-tick" style="left:100%"><span>1.4</span></div>
+        <div class="ruler-dot" style="left:53.3%"><span>1.12</span></div>
+      </div>
+      <figcaption>1997 年泰国的短期外债已超过外汇储备，红点落在 ≥1 一侧。这条线一旦跨过，固定汇率就从"可守"变成"守多久"--不是会不会破，是什么时候、被什么触发。</figcaption>
+    </figure>
+
+    <p>1997 年的泰国，这个比值已经超过了 1。短期外债的规模，超过了外汇储备。意思是：即便没有投机者，只要来兑现承诺的人足够多，库存也兑不过来。沙盘里你看到的那条被跨过的线，就是这一条。你在储户阶段的选择挪动了 ±0.02，但线早就在另一侧了。</p>
+
+    <h2><span class="n">04</span>被沙盘切掉的那一半：私人美元债</h2>
+    <p>沙盘砍掉了一半的机制：它把"短期外债"当作一个外生数字，让你看见那条线被跨过，却没有展开--那些短期外债，是谁欠的，欠的是什么币种。</p>
+    <p>答案是：泰国的银行和企业，借了大量的美元，而且是短期的。通过曼谷国际银行设施（BIBF），泰国金融机构从海外拆入短期美元，再贷出去。这些美元债务记在私人部门的账上，不直接记在央行账上--但它们的存在，决定了危机的形状。</p>
+    <p>这是理解"没有无痛选项"的关键。</p>
+    <p>设想央行守汇率。要守，就得抬高利率，让持有泰铢变得划算、让投机者借泰铢的成本变高。但高利率会压垮那些借了美元、收入却是泰铢的企业和银行--融资成本暴涨，资产价格下跌，坏账上升。守汇率，是在保护泰铢的名义值，代价是国内的实体和金融体系。</p>
+    <p>再设想央行放汇率。泰铢贬值，那些美元债务折回泰铢，瞬间变重。企业还不上，银行坏账爆发。放汇率，是在停止消耗储备，代价是把损失显性化，砸到美元债务人和泰铢持有者头上。</p>
+    <aside class="note">无论守还是放，借了美元的那批人都要受伤。高利率伤他们，贬值也伤他们。这就是为什么这场危机没有无痛选项--不是"两个坏选项里挑一个"，而是杠杆已经架在了同一群人身上，每根杠杆都往他们身上加压，区别只在压的方式和时机。</aside>
+    <p>沙盘里那张"代价转移图"，画的就是这件事。这里把它拆开给你看：代价不是抽象的，它有具体的名字，叫美元债务人。</p>
+
+    <h2><span class="n">05</span>四根杠杆的真实传动</h2>
+    <p>沙盘给了你四张卡。这里把它们的真实传动讲清楚。</p>
+    <div class="levers">
+      <div class="lever">
+        <h3><span class="n">①</span>动用储备 · 硬扛</h3>
+        <dl class="lever-bill"><dt>保护</dt><dd>固定汇率（短期）、持泰铢者</dd><dt class="pay">付账</dt><dd>外汇储备、未来政策空间</dd></dl>
+        <p>央行卖出美元、买入泰铢。这能顶一阵，但储备有限，而攻击者的筹码理论上是无限的。每消耗一块储备，市场对"还剩多少"的猜测就更紧张一分。泰国干预了数月，储备从近四百亿美元的规模一路消耗，最后仍被迫放开。越晚放开，期间消耗的储备越多，放开后的贬值往往越陡--因为市场已经把"守不住"定价进去了。</p>
+      </div>
+      <div class="lever">
+        <h3><span class="n">②</span>提高利率 · 保卫泰铢</h3>
+        <dl class="lever-bill"><dt>保护</dt><dd>短期抑制投机、汇率（短期）</dd><dt class="pay">付账</dt><dd>借美元的企业与银行、热钱埋雷</dd></dl>
+        <p>借泰铢做空变贵，投机成本上升，短期有效。但代价是双重的：一是压垮借美元的国内企业和银行；二是吸引"热钱"--追逐高息的短期资本流入。热钱进得快，出得更快，一旦汇率松动，它们就是下一波抛售。泰国 1997 年大幅提高利率，高利率本身成了加剧衰退和银行危机的力量。</p>
+      </div>
+      <div class="lever">
+        <h3><span class="n">③</span>放弃固定汇率 · 浮动</h3>
+        <dl class="lever-bill"><dt>保护</dt><dd>剩余外汇储备</dd><dt class="pay">付账</dt><dd>美元债务人、泰铢持有者</dd></dl>
+        <p>停止用储备扛，让泰铢浮动。这保住了剩下的储备，避免了"储备耗尽后的更坏局面"。但代价直接砸向美元债务人（偿债暴涨）和泰铢持有者（购买力下降）。这是泰国 1997 年 7 月 2 日实际做的。浮动后泰铢大幅贬值，当年年底对美元跌去近一半。</p>
+      </div>
+      <div class="lever">
+        <h3><span class="n">④</span>资本管制 · 关门止血</h3>
+        <dl class="lever-bill"><dt>保护</dt><dd>减缓资金外流、短期止血</dd><dt class="pay">付账</dt><dd>国际资本信任、长期政策信誉</dd></dl>
+        <p>限制资金流出，短期能减缓外流。但代价是国际资本的信任：一旦你关过门，跨境融资的成本就会长期上升。泰国当时没有主要采用这条路；马来西亚在 1998 年采用了，至今争议未消。</p>
+      </div>
+    </div>
+    <p>四根杠杆，没有一根是"解法"。每一根都是在给不同的人开账单，只是收款人的组合不同。央行的选择，不是"避免危机"，而是"让谁来承担、什么时候承担"。</p>
+
+    <h2><span class="n">06</span>反事实：能避免吗</h2>
+    <p>这是最该回答的问题。先说能的部分：如果储户群体没有集中撤离，央行本可以多争取一些时间。动用储备，本可以再延缓一段--储备的消耗速度，取决于来兑现的人有多少。人群不跑，库存就消耗得慢，固定汇率就多挂一阵。</p>
+    <p>但这是"延缓"，不是"避免"。因为短期外债还在那里。只要那笔美元债务的规模超过储备，结构性的脆弱就没有消失。央行可以推迟承认它，但不能让它不存在。</p>
+    <blockquote class="pull pillar"><p>危机会被推迟，不会消失。</p></blockquote>
+    <p>再说分布。虽然"某种危机"在这条线已经跨过、私人资产负债表已经裸露之后很难避免，但代价落在谁身上，是偶然的、是选择相关的。早一点放开，储备少消耗一些，但贬值可能更猛；坚持守，储备耗尽后被迫放开，冲击更陡但争取了时间；资本管制能止血，却留下信任疤痕。不同的路径，把账单寄给不同的人。</p>
+    <p>所以要同时拒绝两种偷懒的说法。一种是"既然必然，选择就无意义"--不，选择的差异真实地体现在谁受损上。另一种是"更好的政策就能避免危机"--也不对，在阈值已经跨过之后，可避免的只是危机的形状，不是危机本身。沙盘结尾那句"危机会被推迟，不会消失"，说的就是这件事。</p>
+
+    <h2><span class="n">07</span>模式：不止泰国</h2>
+    <p>这套框架--选美 ＋ 一条无法无限兑现的承诺 ＋ 一个可算的流动性阈值--不只解释 1997 年的泰国。</p>
+    <p>金本位是一种承诺：货币按固定价格兑换黄金。1931 年英国放弃它，逻辑和泰国放弃泰铢钉住如出一辙--承诺背后的黄金库存，兑不过来。1992 年的欧洲汇率机制（ERM），英镑钉住马克，索罗斯狙击英镑，英国退出 ERM--同样是"无限承诺 ＋ 有限储备"的算术。阿根廷反复上演同一出戏：比索钉住美元，承诺兑不动，崩，再钉，再崩。</p>
+    <p>这些案例的共同点，不是"投机者贪婪"或"政府愚蠢"，而是它们都站到了承诺结构的同一边：把一个无限的兑换承诺，押在一笔有限的库存上。</p>
+    <p>对照之下，A 股 2015 是另一类。它有选美，有杠杆强制的断点。但 2015 年国家队确实大规模入市托盘--说"没有人守"是不准的。真正的区别不在"有没有人托市"，而在托市靠的是什么库存。央行守泰铢，靠一笔有限的美元储备，兑一点少一点；中国托 A 股，靠可以无限创造的本币。前者是有限库存对无限承诺，会被耗穿；后者没有这个约束，所以能（付出代价后）止住。A 股的暴跌是杠杆出清，烧光就停；泰铢的崩盘是对有限库存的挤兑，不破不散。痛苦，但没有汇率危机那种"承诺违约"的传染链。</p>
+    <aside class="note">同样的人性，不同的结构，不同的危机。恐慌在哪里聚集、以什么形态爆发，是由结构决定的。</aside>
+
+    <h2><span class="n">08</span>回到你</h2>
+    <p>回到你那 10 万泰铢。你换不换，对国家毫无影响。这条线，无论你做什么都被跨过了。</p>
+    <p>但你也在系统里。你和无数个像你一样的人，每个人都在用自己能看见的信息做合理的事：看见邻居换美元，于是也换；看见储备下降，于是也跑。没有一个个体是错的，但无数个对个体而言合理的选择，汇成了让"守住"变得不可行的那个状态。</p>
+    <blockquote class="pull"><p>危机很少由一个人的错误造成。它由无数个对个人而言合理的选择，共同造成。</p></blockquote>
+    <p>把账算给某个投机者、某个官员、某群储户，都太轻巧了。真正的成本，分散在每一个合理选择的微小加总里。所以沙盘不给你打分，这里也不下结论。只想让你带走一件事：危机不是某个人的恶意，是一条结构性的缝--而这条缝，常常是可以提前算出来的。能算出来，未必能避免；但看得见，总比看不见好。</p>
+
+    <footer class="essay-end">
+      <p>这是互动沙盘《守住泰铢》的后续讲解。沙盘让你摸到那条缝的形状，这篇文章把它切开。如果你还没做过沙盘，可以先去感受一次；做过了，也可以回去换一个选择，看看代价落在谁身上。</p>
+      <div class="crosslinks">
+        <a href="../financial-sandbox/baht.html">做一次沙盘 · 守住泰铢 -></a>
+        <a class="ghost" href="../index.html">回到文章库</a>
+      </div>
+    </footer>
+  </article>
+</body>
+</html>

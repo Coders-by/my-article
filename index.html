@@ -82,6 +82,20 @@
     .empty.show { display: block; }
     footer { width: min(1280px, calc(100% - 40px)); margin: 0 auto; padding: 22px 0 36px; display: flex; justify-content: space-between; color: var(--faint); border-top: 1px solid var(--line); font: .66rem var(--sans); letter-spacing: .08em; }
 
+    /* ---------- 互动沙盘入口（独立于慢读卡片网格） ---------- */
+    .annex { width: min(1280px, calc(100% - 40px)); margin: 0 auto; padding: 8px 0 90px; }
+    .annex-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+    .annex-title { margin: 0; font-size: clamp(1.8rem, 3vw, 2.7rem); font-weight: 500; letter-spacing: -.06em; }
+    .annex-note { margin: 0 0 5px; color: var(--muted); font: .7rem var(--sans); letter-spacing: .1em; }
+    .sandbox { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; margin-top: 26px; padding: 30px 32px; border: 1px solid var(--line); background: rgba(248, 247, 242, .72); text-decoration: none; transition: transform .25s ease, border-color .25s ease, background .25s ease; }
+    .sandbox:hover { transform: translateY(-3px); border-color: rgba(189, 98, 68, .65); background: var(--paper); }
+    .sandbox-meta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; color: var(--accent); font: 700 .62rem var(--sans); letter-spacing: .12em; }
+    .sandbox-meta span:first-child { color: var(--sage); }
+    .sandbox h3 { max-width: 650px; margin: 0; font-size: clamp(1.45rem, 2.4vw, 2.05rem); font-weight: 500; letter-spacing: -.06em; line-height: 1.25; }
+    .sandbox-sub { max-width: 680px; margin: 14px 0 0; color: var(--muted); font-size: .97rem; line-height: 1.9; }
+    .sandbox-arrow { align-self: center; width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--accent); font: 1.25rem var(--sans); transition: transform .25s ease; }
+    .sandbox:hover .sandbox-arrow { transform: translateX(4px); }
+
     @media (max-width: 760px) {
       .topbar-note { display: none; }
       .hero { display: block; padding-top: 70px; }
@@ -98,6 +112,8 @@
       .sort-note { display: block; margin-top: 15px; }
       .card { padding: 23px 20px; }
       .card-arrow { width: 34px; height: 34px; font-size: 1rem; }
+      .sandbox { padding: 23px 20px; }
+      .sandbox-arrow { width: 34px; height: 34px; font-size: 1rem; }
       footer { display: block; }
       footer span + span { display: block; margin-top: 10px; }
     }
@@ -108,6 +124,7 @@
   <header class="topbar">
     <a class="brand" href="index.html"><span class="brand-mark">M</span><span>MY ARTICLE</span></a>
     <nav>
+      <a class="topbar-link" href="financial-sandbox/baht.html">互动</a>
       <a class="topbar-link" href="books/index.html">印本</a>
     </nav>
   </header>
@@ -143,6 +160,21 @@
         <div class="empty" id="empty">还没有找到匹配的文章。换个关键词试试。</div>
       </section>
     </section>
+
+    <section class="annex" aria-label="互动">
+      <div class="annex-head">
+        <h2 class="annex-title">互动</h2>
+        <p class="annex-note">把读，变成做</p>
+      </div>
+      <a class="sandbox" href="financial-sandbox/baht.html">
+        <div>
+          <div class="sandbox-meta"><span>INTERACTIVE</span><span>金融沙盘 No.01</span><span>1997</span><span>约 7 min</span></div>
+          <h3>守住泰铢</h3>
+          <p class="sandbox-sub">当所有人开始撤回信任，央行还剩哪些选择？一条诚实涌现缝的最小沙盘：你只在储户阶段做一次选择，其余由 1997 年的真实基线决定。</p>
+        </div>
+        <span class="sandbox-arrow" aria-hidden="true">↗</span>
+      </a>
+    </section>
   </main>
 
   <footer><span>MY ARTICLE · READ SLOWLY</span><span>共 <b id="footerCount">0</b> 篇文章</span></footer>
@@ -151,7 +183,8 @@
     const articles = [
       { id: 'convergence', category: '工程方法', label: 'ENGINEERING', title: '越聪明的系统，越需要收敛', excerpt: '越聪明的系统，越需要把无限可能收束成一条确定的路。模型扩张解空间，人类收敛问题空间。', tags: ['AI', '架构', '决策'], date: '2026.06', reading: '12 min', path: 'articles/convergence.html' },
       { id: 'language', category: '随笔', label: 'ESSAY', title: '语言停顿的间隙', excerpt: '一场饭局里的五次停顿：关于自证、表演、完整、出发，以及回到自己。', tags: ['关系', '自由', '深圳'], date: '2026.07', reading: '10 min', path: 'articles/language.html' },
-      { id: 'xiaoli', category: '随笔', label: 'ESSAY', title: '削梨', excerpt: '关于文曲化忌、遗憾美学与语言之刀：故事可以承载回忆，却不必定义关系。', tags: ['命理', '语言', '自我'], date: '2026.07', reading: '6 min', path: 'articles/xiaoli.html' }
+      { id: 'xiaoli', category: '随笔', label: 'ESSAY', title: '削梨', excerpt: '关于文曲化忌、遗憾美学与语言之刀：故事可以承载回忆，却不必定义关系。', tags: ['命理', '语言', '自我'], date: '2026.07', reading: '6 min', path: 'articles/xiaoli.html' },
+      { id: 'unkeepable-promise', category: '经济', label: 'ECONOMY', title: '守不住的承诺', excerpt: '危机不是恐慌制造的，是恐慌撞上了一条无法无限兑现的承诺。选美、阈值与 1997 年的泰铢--沙盘《守住泰铢》的深度后续阅读。', tags: ['金融', '危机', '泰铢', '选美'], date: '2026.07', reading: '20 min', path: 'articles/unkeepable-promise.html' }
     ];
     const state = { category: '全部', query: '' };
     const categories = ['全部', ...new Set(articles.map(article => article.category))];

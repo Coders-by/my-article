@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e0ddd3">
+  <meta name="description" content="金融沙盘 No.01：守住泰铢。一条诚实涌现缝的最小沙盘。">
+  <title>守住泰铢｜金融沙盘 No.01</title>
+  <style>
+    /* ============================================================
+       金融沙盘 No.01 · 守住泰铢
+       自包含单文件。继承 chapbook 纸感+宋体，降暖加灰，
+       引入档案红 --risk 与等宽数字 --mono。
+       ============================================================ */
+    :root {
+      --bg: #e0ddd3;
+      --paper: #fbfaf6;
+      --ink: #211f1c;
+      --muted: #6b6960;
+      --faint: #b3b0a5;
+      --line: #d4d1c7;
+      --risk: #9e3b2f;          /* 档案印章红，非亮红；风险标记/阈值警示 */
+      --annotation: #43525e;    /* 钢笔蓝灰，手写批注感 */
+      --serif: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --mono: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: var(--serif);
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .14;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+      z-index: -1;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ---------- 档案条（替代 chapbook .toolbar） ---------- */
+    .archive-bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: .8rem clamp(20px, 4vw, 48px);
+      background: rgba(251, 250, 246, .84);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      font-family: var(--sans);
+    }
+    .archive-left { display: flex; align-items: center; gap: 1rem; }
+    .archive-back {
+      color: var(--muted);
+      font-size: .72rem;
+      letter-spacing: .04em;
+      transition: color .2s ease;
+    }
+    .archive-back:hover { color: var(--ink); }
+    .archive-name { font-size: .68rem; letter-spacing: .22em; color: var(--ink); }
+    .archive-year { color: var(--muted); font-size: .68rem; letter-spacing: .18em; }
+
+    /* ---------- 舞台 ---------- */
+    .stage-wrap { width: min(760px, calc(100% - 40px)); margin: 0 auto; padding: clamp(40px, 7vw, 84px) 0 120px; }
+    #stage { transition: opacity .28s ease, transform .28s ease; }
+    .scene { display: flex; flex-direction: column; gap: 2.1rem; }
+
+    /* ---------- 通用排版 ---------- */
+    .eyebrow {
+      margin: 0;
+      color: var(--risk);
+      font-family: var(--sans);
+      font-size: .64rem;
+      font-weight: 700;
+      letter-spacing: .26em;
+      text-indent: .26em;
+    }
+    .scene-title {
+      margin: .3rem 0 0;
+      font-size: clamp(1.9rem, 4.4vw, 2.7rem);
+      font-weight: 600;
+      letter-spacing: .04em;
+      line-height: 1.3;
+    }
+    .scene-sub { margin: -.6rem 0 0; color: var(--muted); font-size: .96rem; letter-spacing: .04em; }
+    .prose { margin: 0; font-size: 1.06rem; line-height: 2; color: #34322e; }
+    .prose + .prose { margin-top: -.4rem; }
+    .lead { font-size: 1.14rem; line-height: 1.95; }
+
+    /* ---------- 手写批注块 ---------- */
+    .annotation {
+      margin: 0;
+      padding: .2rem 0 .2rem 1.1rem;
+      border-left: 2px solid var(--annotation);
+      color: var(--annotation);
+      font-size: .98rem;
+      line-height: 1.95;
+      font-style: italic;
+    }
+    .annotation small {
+      display: block;
+      margin-top: .5rem;
+      font-family: var(--sans);
+      font-style: normal;
+      font-size: .6rem;
+      letter-spacing: .18em;
+      color: var(--faint);
+    }
+
+    /* ---------- 落句 / 格言 ---------- */
+    .aphorism {
+      margin: 0;
+      padding: 1.6rem 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      font-size: 1.12rem;
+      line-height: 2.1;
+      letter-spacing: .02em;
+      text-align: center;
+      color: #2a2824;
+    }
+    .aphorism p { margin: 0; }
+
+    /* ---------- 外生信号清单 ---------- */
+    .signals { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+    .signals li {
+      display: flex;
+      align-items: baseline;
+      gap: .8rem;
+      padding: .55rem 0;
+      border-bottom: 1px dashed var(--line);
+      font-size: .98rem;
+      line-height: 1.7;
+    }
+    .signals li:last-child { border-bottom: 0; }
+    .signals .tag {
+      flex-shrink: 0;
+      color: var(--faint);
+      font-family: var(--sans);
+      font-size: .58rem;
+      letter-spacing: .16em;
+      min-width: 5.2em;
+    }
+    .signals-note { margin: .8rem 0 0; color: var(--faint); font-family: var(--sans); font-size: .62rem; letter-spacing: .12em; }
+
+    /* ---------- 选择按钮 ---------- */
+    .prompt { margin: 0; font-size: 1.04rem; line-height: 1.9; color: var(--ink); }
+    .choices { display: grid; gap: .7rem; }
+    .choice {
+      display: flex;
+      align-items: baseline;
+      gap: .9rem;
+      width: 100%;
+      padding: 1rem 1.2rem;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: rgba(251, 250, 246, .6);
+      color: var(--ink);
+      transition: border-color .2s ease, background .2s ease, transform .2s ease;
+    }
+    .choice:hover { border-color: var(--risk); background: var(--paper); transform: translateX(3px); }
+    .choice:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .choice .num { color: var(--risk); font-family: var(--mono); font-size: .82rem; flex-shrink: 0; }
+    .choice .label { font-size: 1.02rem; }
+    .choice .hint { margin-left: auto; color: var(--faint); font-family: var(--sans); font-size: .6rem; letter-spacing: .1em; }
+    .choice.picked { border-color: var(--risk); background: rgba(158, 59, 47, .06); }
+
+    /* ---------- 账户反馈（克制） ---------- */
+    .ledger {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.4rem 2.4rem;
+      padding: 1.3rem 1.4rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+    }
+    .ledger-item { display: flex; flex-direction: column; gap: .3rem; }
+    .ledger-key { color: var(--faint); font-family: var(--sans); font-size: .6rem; letter-spacing: .16em; }
+    .ledger-val { font-family: var(--mono); font-size: 1.5rem; letter-spacing: .02em; color: var(--ink); }
+    .ledger-val small { font-family: var(--sans); font-size: .62rem; color: var(--muted); margin-left: .3rem; letter-spacing: .1em; }
+    .ledger-note { margin: .7rem 0 0; width: 100%; color: var(--faint); font-family: var(--sans); font-size: .6rem; letter-spacing: .12em; }
+
+    /* ---------- 双屏（场景 2） ---------- */
+    .dual { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); background: var(--paper); }
+    .dual-col { padding: 1.5rem 1.4rem; }
+    .dual-col + .dual-col { border-left: 1px solid var(--line); }
+    .dual-head { display: flex; align-items: center; gap: .6rem; margin: 0 0 .8rem; color: var(--muted); font-family: var(--sans); font-size: .6rem; letter-spacing: .2em; }
+    .dual-head .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+    .dual-col.risk .dual-head .dot { background: var(--risk); }
+    .dual-title { margin: 0 0 .6rem; font-size: 1.12rem; font-weight: 600; letter-spacing: .04em; }
+    .dual-body { margin: 0; font-size: .92rem; line-height: 1.85; color: #3a3833; }
+
+    /* ---------- 人群比例（静态示意） ---------- */
+    .crowd { border: 1px solid var(--line); background: var(--paper); padding: 1.3rem 1.4rem; }
+    .crowd-bar { display: flex; height: 14px; margin: .4rem 0 1rem; border: 1px solid var(--line); overflow: hidden; }
+    .crowd-seg { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: .6rem; color: #fff; }
+    .crowd-legend { display: grid; gap: .5rem; }
+    .crowd-legend .row { display: flex; align-items: baseline; gap: .7rem; font-size: .92rem; }
+    .crowd-legend .sw { width: 9px; height: 9px; flex-shrink: 0; }
+    .crowd-legend .pct { margin-left: auto; font-family: var(--mono); color: var(--muted); }
+    .crowd-note { margin: 1rem 0 0; color: var(--risk); font-family: var(--sans); font-size: .6rem; letter-spacing: .14em; }
+
+    /* ---------- 阈值标尺 ---------- */
+    .ruler { border: 1px solid var(--line); background: var(--paper); padding: 1.5rem 1.4rem 1.2rem; }
+    .ruler-label { display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 1.2rem; }
+    .ruler-label .name { font-size: .98rem; letter-spacing: .03em; }
+    .ruler-label .scale { color: var(--faint); font-family: var(--sans); font-size: .58rem; letter-spacing: .14em; }
+    .ruler-track { position: relative; height: 46px; margin: 0 .2rem; }
+    .ruler-line { position: absolute; left: 0; right: 0; top: 14px; height: 1px; background: var(--line); }
+    .ruler-tick { position: absolute; top: 8px; width: 1px; height: 12px; background: var(--faint); }
+    .ruler-tick span { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: .6rem; color: var(--faint); white-space: nowrap; }
+    .ruler-tick.threshold { background: var(--risk); height: 22px; top: 3px; }
+    .ruler-tick.threshold span { color: var(--risk); font-weight: 700; font-family: var(--sans); letter-spacing: .08em; }
+    .ruler-dot {
+      position: absolute; top: 6px; width: 16px; height: 16px; border-radius: 50%;
+      background: var(--risk); border: 2px solid var(--paper); box-shadow: 0 0 0 1px var(--risk);
+      transform: translateX(-50%); transition: left .5s ease;
+    }
+    .ruler-dot span {
+      position: absolute; top: -1.7rem; left: 50%; transform: translateX(-50%);
+      font-family: var(--mono); font-size: .72rem; color: var(--risk); white-space: nowrap; font-weight: 700;
+    }
+    .ruler-note { margin: 1.6rem 0 0; color: var(--risk); font-size: .9rem; line-height: 1.7; }
+    .ruler-note b { font-weight: 600; }
+
+    /* ---------- 相对条（储备 / 压力） ---------- */
+    .gauges { display: grid; gap: 1rem; }
+    .gauge { border: 1px solid var(--line); background: var(--paper); padding: 1.1rem 1.3rem; }
+    .gauge-head { display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 .7rem; }
+    .gauge-name { font-size: .9rem; letter-spacing: .03em; }
+    .gauge-state { font-family: var(--sans); font-size: .6rem; letter-spacing: .16em; color: var(--risk); }
+    .gauge-track { position: relative; height: 12px; border: 1px solid var(--line); background: rgba(0,0,0,.03); }
+    .gauge-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--muted); transition: width .5s ease; }
+    .gauge-fill.risk { background: var(--risk); opacity: .7; }
+    .gauge-mark {
+      position: absolute; top: -5px; bottom: -5px; width: 2px; background: var(--annotation);
+      transform: translateX(-50%); transition: left .5s ease;
+    }
+    .gauge-mark::after {
+      content: "你的选择在此"; position: absolute; bottom: -1.4rem; left: 50%; transform: translateX(-50%);
+      font-family: var(--sans); font-size: .54rem; letter-spacing: .1em; color: var(--annotation); white-space: nowrap;
+    }
+    .gauge-foot { margin: 1.3rem 0 0; color: var(--faint); font-family: var(--sans); font-size: .58rem; letter-spacing: .12em; }
+
+    /* ---------- 政策卡 ---------- */
+    .policy-grid { display: grid; gap: .9rem; }
+    .policy-card {
+      display: grid; gap: 1rem;
+      padding: 1.3rem 1.4rem;
+      border: 1px solid var(--line);
+      background: rgba(251, 250, 246, .6);
+      text-align: left;
+      transition: border-color .2s ease, background .2s ease;
+    }
+    .policy-card:hover { border-color: var(--risk); background: var(--paper); }
+    .policy-card.picked { border-color: var(--risk); background: rgba(158, 59, 47, .06); }
+    .policy-head { display: flex; align-items: baseline; gap: .7rem; }
+    .policy-head .num { color: var(--risk); font-family: var(--mono); font-size: .9rem; }
+    .policy-head .goal { font-size: 1.08rem; font-weight: 600; letter-spacing: .03em; }
+    .policy-head .arrow { color: var(--faint); margin: 0 .2rem; }
+    .policy-head .act { color: var(--muted); font-size: .96rem; }
+    .policy-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .policy-col h4 { margin: 0 0 .4rem; font-family: var(--sans); font-size: .58rem; letter-spacing: .18em; color: var(--faint); font-weight: 700; }
+    .policy-col.pay h4 { color: var(--risk); }
+    .policy-col p { margin: 0; font-size: .9rem; line-height: 1.7; color: #3a3833; }
+    .policy-nature { padding-top: .8rem; border-top: 1px dashed var(--line); font-size: .86rem; line-height: 1.7; color: var(--annotation); font-style: italic; }
+    .policy-nature b { font-style: normal; font-family: var(--sans); font-size: .58rem; letter-spacing: .16em; color: var(--faint); margin-right: .5rem; }
+
+    /* ---------- 代价转移图 ---------- */
+    .cost { border: 1px solid var(--line); background: var(--paper); padding: 1.5rem 1.4rem; }
+    .cost h3 { margin: 0 0 1rem; font-size: 1.1rem; font-weight: 600; letter-spacing: .03em; }
+    .cost-block { margin: 0 0 1.1rem; }
+    .cost-block:last-child { margin-bottom: 0; }
+    .cost-key { margin: 0 0 .5rem; font-family: var(--sans); font-size: .6rem; letter-spacing: .18em; color: var(--faint); }
+    .cost-key.pay { color: var(--risk); }
+    .cost-list { margin: 0; padding: 0; list-style: none; display: grid; gap: .4rem; }
+    .cost-list li { display: flex; align-items: baseline; gap: .6rem; font-size: .94rem; line-height: 1.6; }
+    .cost-list li::before { content: "→"; color: var(--risk); font-family: var(--mono); font-size: .8rem; flex-shrink: 0; }
+    .cost-list.shield li::before { content: "✓"; color: var(--muted); }
+    .cost-note { margin: 1rem 0 0; padding-top: .9rem; border-top: 1px dashed var(--line); font-size: .86rem; line-height: 1.75; color: var(--annotation); font-style: italic; }
+    .cost-note b { font-style: normal; font-family: var(--sans); font-size: .58rem; letter-spacing: .16em; color: var(--faint); margin-right: .5rem; }
+
+    /* ---------- 历史对照 ---------- */
+    .verdict { border: 1px solid var(--risk); background: rgba(158, 59, 47, .04); padding: 1.6rem 1.5rem; }
+    .verdict-head { margin: 0 0 .9rem; color: var(--risk); font-family: var(--sans); font-size: .62rem; letter-spacing: .22em; font-weight: 700; }
+    .verdict p { margin: 0 0 .8rem; font-size: .98rem; line-height: 1.9; }
+    .verdict p:last-child { margin-bottom: 0; }
+
+    /* ---------- 反事实揭示面板 ---------- */
+    .reveal { display: grid; gap: 1.2rem; }
+    .reveal-card { padding: 1.5rem 1.5rem; border: 1px solid var(--line); background: var(--paper); position: relative; }
+    .reveal-card.counter { border-color: var(--annotation); background: rgba(67, 82, 94, .04); }
+    .reveal-tag { margin: 0 0 .8rem; font-family: var(--sans); font-size: .6rem; letter-spacing: .2em; color: var(--risk); font-weight: 700; }
+    .reveal-card.counter .reveal-tag { color: var(--annotation); }
+    .reveal-card p { margin: 0 0 .7rem; font-size: 1rem; line-height: 1.95; }
+    .reveal-card p:last-child { margin-bottom: 0; }
+
+    /* ---------- 收尾 caption ---------- */
+    .caption { margin: 2.4rem 0 0; padding-top: 1.6rem; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: .9rem; line-height: 2; }
+    .caption p { margin: 0; }
+
+    /* ---------- folio 角标 ---------- */
+    .folio {
+      margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between; align-items: baseline;
+      color: var(--faint); font-family: var(--sans); font-size: .6rem; letter-spacing: .2em;
+    }
+
+    /* ---------- 推进按钮 ---------- */
+    .advance { display: inline-flex; align-items: center; gap: .6rem; margin-top: .4rem; padding: .85rem 1.5rem; border: 1px solid var(--ink); background: var(--ink); color: #fff; font-family: var(--sans); font-size: .7rem; letter-spacing: .18em; transition: opacity .2s ease; }
+    .advance:hover { opacity: .82; }
+    .advance.ghost { background: transparent; color: var(--ink); }
+    .end-actions { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; }
+
+    /* ---------- 封面 ---------- */
+    .cover { text-align: center; padding: 1rem 0; }
+    .cover-kicker { margin: 0 0 1.4rem; color: var(--risk); font-family: var(--sans); font-size: .64rem; letter-spacing: .5em; text-indent: .5em; font-weight: 700; }
+    .cover h1 { margin: 0; font-size: clamp(3rem, 9vw, 4.6rem); font-weight: 600; letter-spacing: .12em; text-indent: .12em; line-height: 1.2; }
+    .cover-line { display: flex; align-items: center; gap: 1rem; width: 8rem; margin: 2rem auto; color: var(--faint); }
+    .cover-line::before, .cover-line::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    .cover-sub { max-width: 30rem; margin: 0 auto; color: var(--muted); font-size: 1.08rem; line-height: 2; }
+    .cover-foot { margin: 3rem auto 0; max-width: 30rem; color: var(--faint); font-family: var(--sans); font-size: .62rem; letter-spacing: .14em; line-height: 1.9; }
+
+    /* ---------- 移动端 ---------- */
+    @media (max-width: 640px) {
+      .dual { grid-template-columns: 1fr; }
+      .dual-col + .dual-col { border-left: 0; border-top: 1px solid var(--line); }
+      .policy-cols { grid-template-columns: 1fr; }
+      .archive-name { font-size: .62rem; }
+      .ledger-val { font-size: 1.3rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      #stage { transition: none; }
+      .ruler-dot, .gauge-fill, .gauge-mark { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="archive-bar">
+    <div class="archive-left">
+      <a class="archive-back" href="../index.html">← 文章库</a>
+      <span class="archive-name">金融沙盘 No.01</span>
+    </div>
+    <span class="archive-year">1997</span>
+  </header>
+
+  <main class="stage-wrap">
+    <div id="stage"></div>
+  </main>
+
+  <script>
+  /* ============================================================
+     状态机：极小，零随机，零依赖。
+     唯一玩家输入 = saverChoice（场景 1）。
+     其余由历史基线 HIST 决定。阈值在历史复现下恒被跨过。
+     ============================================================ */
+  const HIST = {
+    debtToReserve: 1.12,   // 1997 短期外债/储备 >1（历史事实）
+    reservesBar: 0.62,     // 相对储备条 0–1，纯视觉示意，不参与判定
+    crowdFlight: 'heavy',  // 历史人群撤离：重（外生）
+    peg: 25,               // 1 美元 ≈ 25 泰铢（固定汇率承诺）
+    deposit: 100000,       // 你持有 10 万泰铢存款
+  };
+
+  // 玩家选择的可见 delta（小，且非决定性）
+  const SAVER = {
+    hold:    { ratio: -0.02, label: '持有全部',   keep: 100000, out: 0 },
+    partial: { ratio:  0.00, label: '换出一部分', keep: 50000,  out: 50000 },
+    all:     { ratio:  0.02, label: '全部换出',   keep: 0,      out: 100000 },
+  };
+
+  const POLICIES = [
+    { id:'defend', n:'①', goal:'守住汇率', act:'动用外汇储备',
+      protect:'固定汇率（短期）、持有泰铢资产的人',
+      pay:'外汇储备（持续消耗）、未来政策空间、最终被迫调整时的冲击更陡',
+      nature:'储备已不足持续干预 — 只能延缓失守，无法恢复信心',
+      note:'泰国耗资干预数月后仍被迫放开；越晚放开，冲击越大。' },
+    { id:'rates', n:'②', goal:'守住货币吸引力', act:'提高利率',
+      protect:'短期抑制投机、汇率（短期）',
+      pay:'企业融资成本、房地产、实体经济',
+      nature:'实体已脆弱 — 高利率进一步加压',
+      note:'泰国曾大幅提高利率；高利率本身加剧了本已脆弱的企业与金融体系压力。' },
+    { id:'float', n:'③', goal:'守住外汇储备', act:'放弃固定汇率',
+      protect:'外汇储备（停止消耗）、避免储备耗尽后的更坏局面',
+      pay:'持有美元债务的企业（偿债暴涨）、持有泰铢资产的人（购买力下降）、短期市场信心',
+      nature:'停止消耗，但汇率将大幅调整',
+      note:'这正是泰国 1997 年 7 月 2 日所做的。浮动后泰铢大幅贬值。',
+      isHistory:true },
+    { id:'controls', n:'④', goal:'守住资金边界', act:'资本管制',
+      protect:'减缓资金外流、短期止血',
+      pay:'国际资本信任、跨境融资能力、长期政策信誉',
+      nature:'可减缓，但信任成本高',
+      note:'泰国当时未主要采用；马来西亚后来采用，争议至今。' },
+  ];
+
+  const state = {
+    scene: 0,
+    saverChoice: null,
+    cbChoice: null,
+    scene2Step: 0,    // 0 选股 / 1 看人群 / 2 反思
+    stockChoice: null,
+    holdChoice: null,
+  };
+
+  const stage = document.getElementById('stage');
+
+  /* ---------- 工具 ---------- */
+  const fmt = n => n.toLocaleString('en-US');
+  const usd = out => out / HIST.peg;
+  const finalRatio = () => HIST.debtToReserve + SAVER[state.saverChoice].ratio;
+  // 阈值标尺：0.8 → 0%，1.4 → 100%
+  const ratioPos = r => ((r - 0.8) / 0.6) * 100;
+
+  function go(n) {
+    state.scene = n;
+    stage.style.opacity = '0';
+    stage.style.transform = 'translateY(8px)';
+    setTimeout(() => {
+      render();
+      stage.style.opacity = '1';
+      stage.style.transform = 'translateY(0)';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 170);
+  }
+
+  function render() {
+    if (state.scene === 0) stage.innerHTML = renderCover();
+    else if (state.scene === 1) stage.innerHTML = renderScene1();
+    else if (state.scene === 2) stage.innerHTML = renderScene2();
+    else if (state.scene === 3) stage.innerHTML = renderScene3();
+    else if (state.scene === 4) stage.innerHTML = renderScene4();
+    bind();
+  }
+
+  function folio(n, label) {
+    return `<div class="folio"><span>金融沙盘 No.01</span><span>${String(n).padStart(2,'0')} / 04 · ${label}</span></div>`;
+  }
+
+  /* ---------- 封面 ---------- */
+  function renderCover() {
+    return `
+      <section class="scene cover">
+        <p class="cover-kicker">F I N A N C I A L &nbsp; S A N D B O X</p>
+        <h1>守住泰铢</h1>
+        <div class="cover-line"><span>❦</span></div>
+        <p class="cover-sub">当所有人开始撤回信任，央行还剩哪些选择？</p>
+        <p class="cover-foot">一条诚实涌现缝的最小沙盘。约 7 分钟。<br>你只在储户阶段做一次选择。其余由 1997 年的真实基线决定。</p>
+        <button class="advance" data-go="1">进入 · 1997 年 6 月 →</button>
+        ${folio(0, '封面')}
+      </section>`;
+  }
+
+  /* ---------- 场景 1 · 储户 ---------- */
+  function renderScene1() {
+    const picked = state.saverChoice;
+    let interact;
+    if (!picked) {
+      interact = `
+        <p class="prompt">你持有 <b>${fmt(HIST.deposit)}</b> 泰铢存款。邻居已经开始换美元。你呢？</p>
+        <div class="choices">
+          ${Object.entries(SAVER).map(([k,v]) => `
+            <button class="choice" data-saver="${k}">
+              <span class="num">${v.label === '持有全部' ? '①' : v.label === '换出一部分' ? '②' : '③'}</span>
+              <span class="label">${v.label}</span>
+              ${k==='partial' ? '<span class="hint">换出一半</span>' : ''}
+            </button>`).join('')}
+        </div>`;
+    } else {
+      const s = SAVER[picked];
+      interact = `
+        <div class="ledger">
+          <div class="ledger-item"><span class="ledger-key">泰铢 THB</span><span class="ledger-val">${fmt(s.keep)}<small>泰铢</small></span></div>
+          <div class="ledger-item"><span class="ledger-key">美元 USD</span><span class="ledger-val">${fmt(usd(s.out))}<small>美元</small></span></div>
+          <p class="ledger-note">这是你的账户。没有更多解释。</p>
+        </div>
+        <button class="advance" data-go="2">继续 · 同年，另一场行情 →</button>`;
+    }
+    return `
+      <section class="scene">
+        <p class="eyebrow">1997 年 6 月 · 曼谷</p>
+        <h2 class="scene-title">储户</h2>
+        <p class="prose lead">银行门口的队伍比上个月长了。隔壁的阿姨上周就把一部分存款换成了美元，她说“以防万一”。新闻里，官员仍在强调：泰铢稳定，承诺不变。</p>
+        <p class="prose">你不知道接下来会发生什么。你只知道，身边的人在做一件事，而广播里在说另一件事。</p>
+
+        <ul class="signals">
+          <li><span class="tag">你观察到</span>银行排队的人在变多</li>
+          <li><span class="tag">你观察到</span>海外资金在撤离新兴市场</li>
+          <li><span class="tag">你观察到</span>新闻仍在强调：泰铢稳定</li>
+        </ul>
+        <p class="signals-note">这些是你看到的信号，不是你造成的。</p>
+
+        ${interact}
+        ${folio(1, '储户')}
+      </section>`;
+  }
+
+  /* ---------- 场景 2 · 索罗斯 × A股 ---------- */
+  function renderScene2() {
+    const dual = `
+      <div class="dual">
+        <div class="dual-col risk">
+          <div class="dual-head"><span class="dot"></span>1997 · 泰铢</div>
+          <h3 class="dual-title">一条公开的价格承诺</h3>
+          <p class="dual-body">泰国承诺：1 美元 ≈ 25 泰铢。这是一条具体的、写在明面上的价格承诺。市场在猜的，不是“泰铢值多少”，而是“泰国还能不能兑现 25”。</p>
+        </div>
+        <div class="dual-col">
+          <div class="dual-head"><span class="dot"></span>A 股 · 某次行情</div>
+          <h3 class="dual-title">没有承诺的价格</h3>
+          <p class="dual-body">没有人承诺过某只股票值多少。情绪上涨 → 追涨 → 强化；下跌 → 卖出 → 恐慌。价格随人群的信念摇摆，但没有一条线是“必须守住”的。</p>
+        </div>
+      </div>
+
+      <blockquote class="aphorism">
+        <p>选美，是两边共同的人性。</p>
+        <p>承诺，是决定一边会不会变成危机的结构。</p>
+        <p>二阶信念不会自动制造危机。它需要撞上一条无法无限兑现的承诺。</p>
+      </blockquote>
+
+      <p class="annotation">泰铢的断点，是一条公开承诺。<br>A 股的断点，藏在杠杆、流动性和交易规则里。<br>人性相似，但系统决定了恐慌在哪里聚集。<small>旁白 · 不必全说死</small></p>`;
+
+    let interact;
+    if (state.scene2Step === 0) {
+      interact = `
+        <p class="prompt">你看到一只股票涨了 8%。人群在追。你怎么做？</p>
+        <div class="choices">
+          <button class="choice" data-stock="buy"><span class="num">①</span><span class="label">买入</span></button>
+          <button class="choice" data-stock="wait"><span class="num">②</span><span class="label">观望</span></button>
+          <button class="choice" data-stock="sell"><span class="num">③</span><span class="label">卖出</span></button>
+        </div>`;
+    } else if (state.scene2Step === 1) {
+      const segs = [
+        { k:'买入（追涨）', pct:62, color:'var(--risk)' },
+        { k:'观望', pct:23, color:'var(--muted)' },
+        { k:'卖出', pct:15, color:'var(--annotation)' },
+      ];
+      interact = `
+        <div class="crowd">
+          <p class="prompt" style="margin:0 0 .4rem">此刻人群的选择：</p>
+          <div class="crowd-bar">
+            ${segs.map(s => `<div class="crowd-seg" style="width:${s.pct}%;background:${s.color}">${s.pct}</div>`).join('')}
+          </div>
+          <div class="crowd-legend">
+            ${segs.map(s => `<div class="row"><span class="sw" style="background:${s.color}"></span><span>${s.k}</span><span class="pct">${s.pct}%</span></div>`).join('')}
+            <div class="row" style="margin-top:.5rem;padding-top:.6rem;border-top:1px dashed var(--line)"><span class="sw" style="background:transparent;border:1px solid var(--risk)"></span><span>你的选择 · ${stockLabel(state.stockChoice)}</span></div>
+          </div>
+          <p class="crowd-note">示意，非实时。这是一张静态切片，不是实时聚合。</p>
+        </div>
+        <p class="prompt">多数人在追涨。你看到这个比例后——你还坚持吗？</p>
+        <div class="choices">
+          <button class="choice" data-hold="keep"><span class="num">①</span><span class="label">坚持原选择</span></button>
+          <button class="choice" data-hold="change"><span class="num">②</span><span class="label">改变主意</span></button>
+        </div>`;
+    } else {
+      const changed = state.holdChoice === 'change';
+      interact = `
+        <p class="annotation">你最终选择 ${stockLabel(state.stockChoice)}。在看到多数人追涨后，你${changed ? '改变' : '坚持'}了原来的判断。<small>观察 · 这里没有正确答案</small></p>
+        <p class="prose">选美里，重要的不是你觉不觉得美，而是你猜别人觉不觉得美。你的推理有没有变，本身就是值得观察的东西——不是一道要答对的题。</p>
+        <p class="prose">这一幕不会带进央行。你的储户选择，才会。</p>
+        <button class="advance" data-go="3">继续 · 你现在是央行 →</button>`;
+    }
+
+    return `
+      <section class="scene">
+        <p class="eyebrow">同一年 · 两个市场</p>
+        <h2 class="scene-title">索罗斯 × A股</h2>
+        ${dual}
+        ${interact}
+        ${folio(2, '索罗斯 × A股')}
+      </section>`;
+  }
+  function stockLabel(k){ return {buy:'买入',wait:'观望',sell:'卖出'}[k]; }
+
+  /* ---------- 场景 3 · 央行 ---------- */
+  function renderScene3() {
+    const r = finalRatio();
+    const dotPos = ratioPos(r);
+    const delta = SAVER[state.saverChoice].ratio;
+    const reserveFill = (HIST.reservesBar + delta) * 100; // 视觉示意 nudge，不参与判定
+    const pressureMark = { hold: 22, partial: 50, all: 78 }[state.saverChoice];
+
+    const cards = POLICIES.map(p => `
+      <button class="policy-card ${state.cbChoice===p.id?'picked':''}" data-cb="${p.id}">
+        <div class="policy-head">
+          <span class="num">${p.n}</span>
+          <span class="goal">${p.goal}</span>
+          <span class="arrow">→</span>
+          <span class="act">${p.act}</span>
+        </div>
+        <div class="policy-cols">
+          <div class="policy-col shield"><h4>保 护</h4><p>${p.protect}</p></div>
+          <div class="policy-col pay"><h4>牺 牲</h4><p>${p.pay}</p></div>
+        </div>
+        <p class="policy-nature"><b>性质</b>${p.nature}</p>
+      </button>`).join('');
+
+    return `
+      <section class="scene">
+        <p class="eyebrow">1997 年 · 央行行长室</p>
+        <h2 class="scene-title">央行</h2>
+        <p class="prose lead">你现在是央行。先不急着选。先看清局面。</p>
+
+        <div class="gauges">
+          <div class="gauge">
+            <div class="gauge-head"><span class="gauge-name">外汇储备（相对）</span><span class="gauge-state">持续下降</span></div>
+            <div class="gauge-track">
+              <div class="gauge-fill" style="width:${reserveFill}%"></div>
+            </div>
+            <p class="gauge-foot">相对示意 · 不参与判定</p>
+          </div>
+          <div class="gauge">
+            <div class="gauge-head"><span class="gauge-name">储户兑换压力</span><span class="gauge-state">重 · 外生</span></div>
+            <div class="gauge-track">
+              <div class="gauge-fill risk" style="width:84%"></div>
+              <div class="gauge-mark" style="left:${pressureMark}%"></div>
+            </div>
+            <p class="gauge-foot">主体由外生人群决定；刻度标出你的选择，可见，但非原因</p>
+          </div>
+        </div>
+
+        <div class="ruler">
+          <div class="ruler-label"><span class="name">短期外债 / 外汇储备</span><span class="scale">GREENSPAN-GUIDOTTI · 阈值 = 1</span></div>
+          <div class="ruler-track">
+            <div class="ruler-line"></div>
+            <div class="ruler-tick" style="left:0%"><span>0.8</span></div>
+            <div class="ruler-tick threshold" style="left:${ratioPos(1)}%"><span>1.0 · 守得住的界线</span></div>
+            <div class="ruler-tick" style="left:100%"><span>1.4</span></div>
+            <div class="ruler-dot" style="left:${dotPos}%"><span>${r.toFixed(2)}</span></div>
+          </div>
+          <p class="ruler-note">红点已落在 <b>≥ 1</b> 一侧（<b>${r.toFixed(2)}</b>，你的选择 <b>${delta > 0 ? '+' : ''}${delta.toFixed(2)}</b>）。无论你在储户阶段怎么选，这条线都被跨过了——承诺已难以无限兑现。</p>
+        </div>
+
+        <p class="prompt">局面已被推到边缘。你优先保护什么？（单选）</p>
+        <div class="policy-grid">${cards}</div>
+        ${state.cbChoice ? `<button class="advance" data-go="4">进入结算 →</button>` : `<p class="signals-note">选定一张卡，进入结算。没有最优解。</p>`}
+        ${folio(3, '央行')}
+      </section>`;
+  }
+
+  /* ---------- 场景 4 · 结算 ---------- */
+  function renderScene4() {
+    const p = POLICIES.find(x => x.id === state.cbChoice);
+    const isHist = p.isHistory;
+    const shield = p.protect.split('、');
+    const pay = p.pay.split('、');
+
+    const verdictLast = isHist
+      ? '历史没有找到无痛选项。你也没有——你走的，正是这条路径。'
+      : '历史没有找到无痛选项。你也没有——但你让代价落在了不同的人身上。';
+    const closingLine = isHist
+      ? '你和历史走的是同一条路。代价没有因此消失。'
+      : '你和历史没走同一条路。但你们都无法让代价消失。';
+
+    return `
+      <section class="scene">
+        <p class="eyebrow">结算</p>
+        <h2 class="scene-title">代价落在了谁身上</h2>
+
+        <p class="prose lead">你进入央行时，系统已经被推到边缘：储备持续下降，储户兑换压力沉重，海外资本撤离，固定汇率的可信度在跌。短期外债已经超过外汇储备——这条线，不是你跨过的。</p>
+
+        <div class="cost">
+          <h3>你选择：${p.n} ${p.goal} → ${p.act}</h3>
+          <div class="cost-block">
+            <p class="cost-key">保 护 了 谁</p>
+            <ul class="cost-list shield">${shield.map(i=>`<li>${i}</li>`).join('')}</ul>
+          </div>
+          <div class="cost-block">
+            <p class="cost-key pay">谁 替 这 个 决 定 付 了 账</p>
+            <ul class="cost-list">${pay.map(i=>`<li>${i}</li>`).join('')}</ul>
+          </div>
+          <p class="cost-note"><b>性质</b>${p.nature}</p>
+          <p class="cost-note"><b>历史注</b>${p.note}</p>
+          ${isHist ? `<p class="annotation" style="margin-top:1rem">你走的，正是历史的路径。<small>历史复现</small></p>` : ''}
+        </div>
+
+        <div class="verdict">
+          <p class="verdict-head">历 史 对 照 · 1997 年 7 月 2 日</p>
+          <p>1997 年 7 月 2 日，泰国放弃固定汇率。</p>
+          <p>历史把代价主要留给了：持有美元债务的企业、持有泰铢资产的人、金融体系与实体经济。</p>
+          <p>${verdictLast}</p>
+        </div>
+
+        <blockquote class="aphorism"><p>${closingLine}</p></blockquote>
+
+        <div class="reveal">
+          <div class="reveal-card">
+            <p class="reveal-tag">个体诚实</p>
+            <p>你换出的那笔，在国家尺度上几乎不可见。</p>
+            <p>1997 年的泰国，短期外债已经超过外汇储备——无论你换不换，这条线都被跨过了。</p>
+          </div>
+          <div class="reveal-card counter">
+            <p class="reveal-tag">系统反事实</p>
+            <p>但如果储户群体没有集中撤离，央行本还有更多时间。</p>
+            <p>动用储备，本可以再延缓一段——</p>
+            <p>只是短期外债仍在那里。危机会被推迟，不会消失。</p>
+          </div>
+        </div>
+
+        <div class="caption">
+          <p>你刚才做的，和这里的无数人一样。</p>
+          <p>危机很少由一个人的错误造成。</p>
+          <p>它由无数个对个人而言合理的选择，共同造成。</p>
+        </div>
+
+        <div class="end-actions">
+          <a class="advance" href="../reader.html?id=unkeepable-promise">深度阅读 · 守不住的承诺 -></a>
+          <button class="advance ghost" data-go="0">↺ 重看一次</button>
+        </div>
+        ${folio(4, '结算')}
+      </section>`;
+  }
+
+  /* ---------- 事件 ---------- */
+  function bind() {
+    stage.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
+      const n = +b.dataset.go;
+      if (n === 0) { // 重置
+        state.saverChoice = null; state.cbChoice = null;
+        state.scene2Step = 0; state.stockChoice = null; state.holdChoice = null;
+      }
+      go(n);
+    }));
+    stage.querySelectorAll('[data-saver]').forEach(b => b.addEventListener('click', () => {
+      state.saverChoice = b.dataset.saver;
+      render();
+    }));
+    stage.querySelectorAll('[data-stock]').forEach(b => b.addEventListener('click', () => {
+      state.stockChoice = b.dataset.stock;
+      state.scene2Step = 1;
+      render();
+    }));
+    stage.querySelectorAll('[data-hold]').forEach(b => b.addEventListener('click', () => {
+      state.holdChoice = b.dataset.hold;
+      state.scene2Step = 2;
+      render();
+    }));
+    stage.querySelectorAll('[data-cb]').forEach(b => b.addEventListener('click', () => {
+      state.cbChoice = b.dataset.cb;
+      render();
+    }));
+  }
+
+  // 初始
+  render();
+  </script>
+</body>
+</html>
