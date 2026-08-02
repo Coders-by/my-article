@@ -379,6 +379,15 @@
       if (this.ctx.state === 'suspended') { try { await this.ctx.resume(); } catch (_) {} }
     },
 
+    /* 移动端解锁：在手势内播放一段静音，否则 iOS Safari 会让 AudioContext 一直挂起 */
+    unlock() {
+      if (!this.ready || !this.ctx) return;
+      const source = this.ctx.createBufferSource();
+      source.buffer = this.ctx.createBuffer(1, 1, 22050);
+      source.connect(this.ctx.destination);
+      source.start(0);
+    },
+
     /* 粉红噪声 buffer（Paul Kellet 近似） */
     _noise() {
       const len = this.ctx.sampleRate * 3;
@@ -962,6 +971,15 @@
     btn.textContent = muted ? '静音中' : '声音';
     btn.classList.toggle('muted', muted);
   });
+
+  /* 移动端：首次手势解锁音频（iOS Safari 需在手势内播放一段静音才放行 AudioContext） */
+  const unlockOnce = () => {
+    Sound.init();
+    if (Sound.ctx && Sound.ctx.state === 'suspended') { Sound.ctx.resume(); }
+    Sound.unlock();
+  };
+  document.addEventListener('touchstart', unlockOnce, { once: true, capture: true });
+  document.addEventListener('click', unlockOnce, { once: true, capture: true });
 
   /* 初始 */
   render(); bind();
