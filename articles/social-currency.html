@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4efe7">
+  <meta name="description" content="社交货币与能量管理：一套可持续的社交操作系统。从弱连接到滋养型关系，七大社交货币，社交链路七步法。">
+  <title>社交货币与能量管理｜社交操作系统</title>
+  <style>
+    :root {
+      --paper: #f4efe7;
+      --paper-deep: #e9dfd2;
+      --ink: #27231f;
+      --muted: #82776d;
+      --faint: #aa9f93;
+      --line: rgba(63, 51, 42, .16);
+      --accent: #8f4a3a;
+      --accent-deep: #6b3226;
+      --accent-soft: rgba(143, 74, 58, .08);
+      --sage: #6c8170;
+      --neon: #e08a4e;
+      --white: #fffaf3;
+      --shadow: 0 24px 80px rgba(64, 48, 34, .09);
+      --serif: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --mono: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255, 255, 255, .85), transparent 28rem),
+        radial-gradient(circle at 88% 26%, rgba(143, 74, 58, .07), transparent 30rem),
+        var(--paper);
+      font-family: var(--serif);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .16;
+      z-index: 10;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.1'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply;
+    }
+    a { color: inherit; }
+    button { font: inherit; cursor: pointer; }
+
+    .progress { position: fixed; inset: 0 0 auto; height: 3px; z-index: 20; background: rgba(39, 35, 31, .07); }
+    .progress span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, var(--accent), #c48c5a); transition: width .12s ease-out; }
+
+    /* ---------- masthead ---------- */
+    .masthead { width: min(1080px, calc(100% - 48px)); min-height: 84vh; margin: 0 auto; padding: 7rem 0 5rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; background: linear-gradient(180deg, rgba(24,22,28,.20) 0%, rgba(24,22,28,.05) 42%, transparent 78%); }
+    .eyebrow, .section-kicker, .meta, .utility, .tag { font-family: var(--sans); letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow { margin: 0 0 1.4rem; color: var(--accent-deep); font-size: .72rem; font-weight: 700; }
+    h1 { max-width: 8em; margin: 0; color: var(--ink); font-size: clamp(3rem, 8vw, 6rem); font-weight: 500; letter-spacing: .06em; line-height: 1.05; }
+    .title-dot { color: #e08a4e; }
+    .subtitle { margin: 1.4rem 0 0; color: var(--muted); font-size: clamp(1rem, 1.8vw, 1.25rem); letter-spacing: .22em; text-indent: .22em; }
+    .dek { max-width: 32rem; margin: 2.4rem auto 0; color: var(--muted); font-size: clamp(1rem, 1.5vw, 1.16rem); line-height: 2.05; }
+    .scroll-cue { position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: .8rem; color: var(--muted); font-family: var(--sans); font-size: .66rem; letter-spacing: .14em; }
+    .scroll-cue i { display: block; width: 2.5rem; height: 1px; background: var(--accent); }
+
+    /* ---------- reader ---------- */
+    .reader { width: min(720px, calc(100% - 48px)); margin: 0 auto; padding-bottom: 4rem; }
+    article { min-width: 0; }
+    .opening { padding: 1rem 0 4rem; border-top: 1px solid var(--line); }
+    .section-kicker { margin: 0 0 1.4rem; color: var(--accent); font-size: .64rem; font-weight: 700; }
+    .section-kicker::before { content: ""; display: inline-block; width: 1.4rem; height: 1px; background: var(--accent); vertical-align: middle; margin-right: .6rem; }
+    article p { margin: 0 0 1.5rem; font-size: 1.1rem; line-height: 2.05; }
+    .opening > p:first-of-type { font-size: 1.28rem; line-height: 1.9; }
+    .opening > p:first-of-type::first-letter { float: left; font-size: 3.4em; line-height: 1; padding: .1em .18em 0 0; font-weight: 700; color: var(--accent-deep); }
+    h2.part { position: relative; margin: 0 0 1.6rem; padding-bottom: .9rem; font-size: clamp(1.7rem, 3vw, 2.2rem); font-weight: 600; letter-spacing: .04em; line-height: 1.3; }
+    h2.part::after { content: ""; position: absolute; left: 0; bottom: 0; width: 0; height: 2px; background: var(--accent); transition: width .7s ease .2s; }
+    section[data-reveal].visible h2.part::after { width: 2.6rem; }
+    h3.sub { margin: 2.2rem 0 1rem; font-size: 1.3rem; font-weight: 600; letter-spacing: .04em; }
+    h3.sub::before { content: ""; display: inline-block; width: 1rem; height: 2px; background: var(--accent); vertical-align: middle; margin-right: .6rem; }
+    h3.sub small { font-family: var(--sans); font-size: .58rem; letter-spacing: .16em; color: var(--faint); font-weight: 700; margin-left: .6rem; vertical-align: middle; }
+
+    blockquote { position: relative; margin: 2.4rem 0 2.6rem; padding: 1.2rem 1.8rem 1.25rem 2rem; border-left: 2px solid var(--accent); color: #493a31; background: rgba(255, 250, 243, .42); font-size: 1.16rem; line-height: 1.95; }
+    blockquote::before { content: "“"; position: absolute; top: -.2rem; left: .3rem; color: rgba(143, 74, 58, .22); font-family: Georgia, serif; font-size: 4.3rem; line-height: 1; }
+    blockquote.pull { position: relative; max-width: 92%; margin-left: auto; margin-right: auto; text-align: center; border-left: 0; border-top: 0; border-bottom: 0; background: transparent; padding: 1.8rem 1.5rem; font-size: clamp(1.2rem, 2.2vw, 1.5rem); line-height: 1.85; color: var(--accent-deep); }
+    blockquote.pull::before, blockquote.pull::after { content: ""; position: absolute; left: 50%; width: 0; height: 1px; background: var(--accent); transition: width .7s ease .3s, left .7s ease .3s; }
+    blockquote.pull::before { top: 0; }
+    blockquote.pull::after { bottom: 0; }
+    section[data-reveal].visible blockquote.pull::before, section[data-reveal].visible blockquote.pull::after { width: 100%; left: 0; }
+
+    .section-break { display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 4rem 0; color: var(--accent); font-size: 1rem; }
+    .section-break::before, .section-break::after { content: ""; width: 3.5rem; height: 1px; background: var(--accent); opacity: .35; }
+
+    /* ---------- 三层关系表 ---------- */
+    .tier-table { width: 100%; margin: 1.6rem 0 2rem; border-collapse: collapse; font-size: .92rem; }
+    .tier-table th, .tier-table td { padding: .8rem .7rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; line-height: 1.7; }
+    .tier-table thead th { font-family: var(--sans); font-size: .58rem; letter-spacing: .14em; color: var(--faint); font-weight: 700; border-bottom: 1px solid var(--ink); background: rgba(143,74,58,.05); }
+    .tier-table tbody tr:last-child { background: rgba(143,74,58,.06); }
+    .tier-table tbody tr:last-child td.name { color: var(--accent-deep); }
+    .tier-table td.name { font-weight: 600; color: var(--accent-deep); white-space: nowrap; }
+    .tier-table td.num { font-family: var(--mono); color: var(--sage); white-space: nowrap; }
+    .tier-table tbody tr { opacity: 0; transform: translateX(-10px); transition: opacity .5s ease, transform .5s ease; }
+    section[data-reveal].visible .tier-table tbody tr { opacity: 1; transform: none; }
+    section[data-reveal].visible .tier-table tbody tr:nth-child(2) { transition-delay: .15s; }
+    section[data-reveal].visible .tier-table tbody tr:nth-child(3) { transition-delay: .3s; }
+
+    /* ---------- 五种价值 ---------- */
+    .value-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 1.4rem 0 2rem; }
+    .value { padding: 1rem 1.1rem; border: 1px solid var(--line); border-left: 2px solid var(--accent); background: rgba(255, 250, 243, .5); transition: border-color .2s, background .2s; }
+    .value:hover { border-color: var(--accent); background: rgba(255, 250, 243, .75); }
+    .value .k { font-family: var(--sans); font-size: .6rem; letter-spacing: .16em; color: var(--accent); font-weight: 700; margin-bottom: .4rem; }
+    .value .v { font-size: .92rem; line-height: 1.7; color: #4a3e35; }
+
+    /* ---------- 七大货币卡片 ---------- */
+    .currency { margin: 1.4rem 0; padding: 1.4rem 1.5rem; border: 1px solid var(--line); background: rgba(255, 250, 243, .4); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+    .currency:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(64,48,34,.09); border-color: var(--accent); }
+    .currency-head { display: flex; align-items: center; gap: .7rem; margin-bottom: .8rem; }
+    .currency-head .n { width: 1.7rem; height: 1.7rem; border-radius: 50%; border: 1px solid var(--accent); display: inline-grid; place-items: center; font-family: var(--mono); font-size: .66rem; color: var(--accent); flex-shrink: 0; }
+    .currency-head .t { font-size: 1.08rem; font-weight: 600; }
+    .currency-head .basis { margin-left: auto; font-family: var(--sans); font-size: .56rem; letter-spacing: .12em; color: var(--faint); }
+    .currency p { margin: 0 0 .7rem; font-size: .98rem; line-height: 1.9; }
+    .currency p:last-child { margin-bottom: 0; }
+    .currency .loop { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin: .8rem 0; }
+    .currency .loop div { padding: .5rem .6rem; border-left: 2px solid var(--accent-soft); font-size: .84rem; line-height: 1.6; color: #4a3e35; }
+    .currency .loop div b { display: block; font-family: var(--sans); font-size: .56rem; letter-spacing: .14em; color: var(--accent); margin-bottom: .2rem; font-weight: 700; }
+
+    .formula { margin: .6rem 0; padding: .7rem .9rem; background: var(--accent-soft); border-left: 2px solid var(--accent); font-size: .96rem; line-height: 1.8; }
+    .formula b { font-family: var(--sans); font-size: .58rem; letter-spacing: .14em; color: var(--accent-deep); margin-right: .5rem; }
+
+    /* ---------- 七步法流程 ---------- */
+    .flow { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; margin: 1.6rem 0 2rem; }
+    .flow .node { padding: .4rem .7rem; border: 1px solid var(--line); color: var(--faint); font-size: .82rem; font-weight: 600; border-radius: 2px; background: transparent; opacity: .5; transition: opacity .45s ease, border-color .45s ease, color .45s ease, background .45s ease; }
+    .flow .node.lit { opacity: 1; border-color: var(--accent); color: var(--accent-deep); background: rgba(255,250,243,.6); }
+    .flow .node.lit:last-child { border-color: var(--neon); color: var(--neon); }
+    .flow .arr { color: var(--faint); font-family: var(--mono); font-size: .8rem; }
+    .steps { display: grid; gap: .8rem; margin: 1.4rem 0 2rem; }
+    .step { display: grid; grid-template-columns: auto 1fr; gap: 1rem; padding: 1rem 1.1rem; border: 1px solid var(--line); background: rgba(255, 250, 243, .4); }
+    .step .num { width: 1.9rem; height: 1.9rem; border-radius: 50%; border: 1px solid var(--accent); display: inline-grid; place-items: center; font-family: var(--mono); font-size: .76rem; color: var(--accent); font-weight: 700; }
+    .step .body b { font-size: 1rem; }
+    .step .body .mind { display: block; margin-top: .35rem; font-size: .88rem; line-height: 1.7; color: var(--sage); }
+    .step .body .mind::before { content: "心法 · "; font-family: var(--sans); font-size: .56rem; letter-spacing: .14em; color: var(--faint); }
+    .step.key { border-color: var(--neon); background: var(--accent-soft); }
+    .step.key .num { background: var(--neon); color: #fff; border-color: var(--neon); }
+
+    /* ---------- 命理原型 ---------- */
+    .archetype { margin: 1.4rem 0; padding: 1.4rem 1.5rem; border: 1px solid var(--line); border-left: 2px solid var(--sage); background: rgba(255, 250, 243, .45); }
+    .archetype .ah { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .6rem; }
+    .archetype .ah .t { font-size: 1.04rem; font-weight: 600; color: var(--accent-deep); }
+    .archetype .ah .tag { font-size: .56rem; color: var(--sage); }
+    .archetype p { margin: 0 0 .6rem; font-size: .98rem; line-height: 1.9; }
+    .archetype p:last-child { margin-bottom: 0; }
+    .archetype .fix { margin-top: .6rem; padding-top: .6rem; border-top: 1px dashed var(--line); font-size: .9rem; color: #4a3e35; }
+    .archetype .fix b { font-family: var(--sans); font-size: .56rem; letter-spacing: .14em; color: var(--accent); margin-right: .5rem; }
+
+    .disclaimer { margin: 1.6rem 0; padding: 1rem 1.2rem; border-left: 2px solid var(--sage); background: rgba(108, 129, 112, .06); font-size: .9rem; line-height: 1.85; color: #4a4a40; font-style: italic; }
+
+    /* ---------- 卡片生成器 ---------- */
+    .cardgen { margin: 2rem 0 1rem; padding: 1.6rem 1.5rem; border: 1px solid var(--ink); background: var(--white); box-shadow: var(--shadow); }
+    .cardgen-head { text-align: center; margin-bottom: 1.2rem; }
+    .cardgen-head .k { font-family: var(--sans); font-size: .6rem; letter-spacing: .18em; color: var(--accent); font-weight: 700; }
+    .cardgen-head .t { margin: .4rem 0 0; font-size: 1.2rem; font-weight: 600; }
+    .field { margin: 1rem 0; }
+    .field label { display: block; font-family: var(--sans); font-size: .58rem; letter-spacing: .14em; color: var(--muted); margin-bottom: .5rem; font-weight: 700; }
+    .trait-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+    .trait { padding: .6rem .7rem; border: 1px solid var(--line); background: transparent; text-align: left; font-size: .84rem; line-height: 1.4; transition: border-color .2s, background .2s; }
+    .trait:hover { border-color: var(--accent); }
+    .trait.picked { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-deep); font-weight: 600; }
+    .trait small { display: block; font-family: var(--sans); font-size: .56rem; color: var(--faint); margin-top: .15rem; letter-spacing: .04em; }
+    .gen-btn { display: block; width: 100%; margin-top: 1.2rem; padding: .85rem; border: 0; background: var(--ink); color: var(--white); font-family: var(--sans); font-size: .7rem; letter-spacing: .18em; font-weight: 700; transition: opacity .2s; }
+    .gen-btn:hover { opacity: .85; }
+    .gen-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .card-out { margin-top: 1.4rem; display: none; }
+    .card-out.show { display: block; }
+    .card-out canvas { display: block; width: 100%; max-width: 460px; margin: 0 auto; border: 1px solid var(--line); }
+    .card-actions { display: flex; gap: .6rem; justify-content: center; margin-top: .9rem; }
+    .card-actions button { padding: .55rem .9rem; border: 1px solid var(--line); background: transparent; color: var(--muted); font-family: var(--sans); font-size: .62rem; letter-spacing: .12em; transition: border-color .2s, color .2s; }
+    .card-actions button:hover { border-color: var(--accent); color: var(--accent-deep); }
+
+    /* ---------- 结尾 / footer ---------- */
+    .ending { padding: .7rem 0 1rem; text-align: center; }
+    .ending .last-line { margin-top: 2.6rem; color: var(--accent-deep); font-size: clamp(1.35rem, 2.8vw, 1.9rem); line-height: 1.75; }
+    .ending .last-line::before { content: ""; display: block; width: 3rem; height: 1px; margin: 0 auto 1.3rem; background: var(--accent); }
+
+    footer { width: min(720px, calc(100% - 48px)); margin: 0 auto; padding: 2rem 0 3rem; display: flex; justify-content: space-between; gap: 1.5rem; color: var(--muted); font-family: var(--sans); font-size: .68rem; letter-spacing: .1em; border-top: 1px solid var(--line); }
+    .utility { display: inline-flex; align-items: center; gap: .55rem; padding: .65rem .8rem; border: 1px solid var(--line); color: var(--muted); background: transparent; font-size: .6rem; letter-spacing: .12em; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+    .utility:hover { color: var(--accent-deep); border-color: var(--accent); background: rgba(255, 250, 243, .6); }
+    .utility svg { width: .9rem; height: .9rem; }
+
+    [data-reveal] { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s ease; }
+    [data-reveal].visible { opacity: 1; transform: none; }
+    ::selection { background: var(--accent); color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      [data-reveal] { opacity: 1; transform: none; transition: none; }
+      h2.part::after { width: 2.6rem; }
+      .flow .node { opacity: 1; border-color: var(--accent); color: var(--accent-deep); background: rgba(255,250,243,.6); transition: none; }
+      .flow .node:last-child { border-color: var(--neon); color: var(--neon); }
+      blockquote.pull::before, blockquote.pull::after { width: 100%; left: 0; transition: none; }
+      .tier-table tbody tr { opacity: 1; transform: none; transition: none; }
+    }
+    @media (max-width: 640px) {
+      .masthead { min-height: auto; padding: 5.5rem 0 6rem; }
+      .scroll-cue { bottom: 2rem; }
+      .reader { width: min(100% - 36px, 720px); }
+      article p { font-size: 1.04rem; line-height: 2; }
+      .value-grid { grid-template-columns: 1fr; }
+      .currency .loop { grid-template-columns: 1fr; }
+      .tier-table { font-size: .84rem; }
+      .tier-table th, .tier-table td { padding: .6rem .4rem; }
+      footer { display: block; }
+      footer > * + * { margin-top: 1rem; }
+    }
+    @media print {
+      body { background: #fff; }
+      body::before, .progress, .scroll-cue, .cardgen, footer { display: none; }
+      .masthead { min-height: auto; padding: 3rem 0 4rem; }
+      [data-reveal] { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+  <header class="masthead">
+    <p class="eyebrow">社交 · Social</p>
+    <h1>社交货币<span class="title-dot">·</span>与能量管理</h1>
+    <p class="subtitle">一套可持续的社交操作系统</p>
+    <p class="dek">聚会散场，通讯录里又多了几个名字，可真正能打电话的人，并没有变多。这本手册想把那些零散的接触，慢慢养成几段能互相滋养的关系——靠一套能反复跑的流程，而不是临场的那点机灵。</p>
+    <div class="scroll-cue"><i></i>向下阅读</div>
+  </header>
+
+  <main class="reader">
+    <article>
+      <section class="opening" data-reveal>
+        <p class="section-kicker">Preface · 散场之后</p>
+        <p>每一次热闹的聚会过后，除了手机里多出的几个名字，似乎什么也没留下。</p>
+        <p>一个晚上下来，你换回几句客套、几张名片，还有几条「改天一起吃饭」。它们大多没能变成关系，只是在通讯录里慢慢凉掉。这种卡顿，很少是因为你不够圆滑——更多时候，是少了套能把零散接触沉淀下来的流程，让它们不至于散场即终结。</p>
+        <p>这篇文章不打算教你怎么讨人喜欢。它做的事更笨一些：把社交拆成能量、资本和流程三件事，给你一套能反复跑的底层结构。根在社会学，手在操作层。</p>
+      </section>
+
+      <div class="section-break" aria-hidden="true">❦</div>
+
+      <!-- ============ 第一部分 ============ -->
+      <section data-reveal>
+        <p class="section-kicker">Part One</p>
+        <h2 class="part">底层逻辑：社交是能量与资本的交换</h2>
+
+        <h3 class="sub">从「弱连接」到「滋养型关系」 <small>GRANOVETTER</small></h3>
+        <p>斯坦福社会学家马克·格兰诺维特在《弱连接的优势》里指出：真正带来新信息与新机会的，往往不是你最亲近的人，而是异质圈层里那些「弱连接」--泛泛之交、一面之缘、偶尔互动的熟人。强连接给你的是陪伴与认同，弱连接给你的，是 你原本触达不到的世界。</p>
+        <p>但弱连接本身不会自动变成机会。它需要被筛过、被养过，才能从「认识」升级为「滋养型关系」--一种深度信任、互相成长、可以反复调用的高社会资本绑定。于是关系天然分成三层：</p>
+
+        <table class="tier-table">
+          <thead><tr><th>层级</th><th>定义</th><th>建议数量</th><th>维护策略</th></tr></thead>
+          <tbody>
+            <tr><td class="name">泛连接</td><td>点头之交、一面之缘</td><td class="num">不限</td><td>顺其自然，无需刻意维护</td></tr>
+            <tr><td class="name">弱连接</td><td>有共同话题，可偶尔互动</td><td class="num">100–200 人</td><td>每月一次轻互动：点赞、定向分享</td></tr>
+            <tr><td class="name">滋养型关系</td><td>深度信任、互相成长</td><td class="num">5–15 人</td><td>每 1–2 周一次高质量交流</td></tr>
+          </tbody>
+        </table>
+        <p>多数人的社交疲劳，出在能量分配上：八成花在了泛连接，留给滋养层的，连一次好好的深聊都凑不出来。这套系统的第一步，就是先把这三层分清，再把能量从底下挪到上面去。</p>
+        <p>把弱连接养到滋养层，靠的不是更频繁的联络，而是几次有质量的交集：一次超出预期的帮忙、一次共同完成的小事、一次被对方真正记住的对话。弱连接像种子，泼水没用，得在关键的几个时刻，给它一点能扎根的东西。</p>
+
+        <h3 class="sub">社交货币：品味即资本 <small>BOURDIEU</small></h3>
+        <p>法国社会学家皮埃尔·布迪厄提醒我们：社交资本，往往建立在文化资本的传递之上。你所拥有的品味、见识与情绪共鸣，才是你最优雅的「社交货币」--它不喧哗，却让人愿意靠近。它大致有五种面值：</p>
+        <div class="value-grid">
+          <div class="value"><div class="k">信息价值</div><div class="v">你知道他人未知的优质资讯：行业动态、小众玩法、高分书影。</div></div>
+          <div class="value"><div class="k">情绪价值</div><div class="v">你能让人感到被看见、被理解、被尊重，以及被逗笑。</div></div>
+          <div class="value"><div class="k">审美价值</div><div class="v">你的生活品味与仪式感，本身就是一种无声的吸引力。</div></div>
+          <div class="value"><div class="k">智力价值</div><div class="v">你独到的见解与思维框架，能帮人理清复杂问题。</div></div>
+          <div class="value" style="grid-column:1/-1"><div class="k">连接价值</div><div class="v">你能跨界串联资源，打破不同圈层之间的壁垒--把对的人，在对的时刻，介绍给对的人。</div></div>
+        </div>
+        <p>货币搁在手里不值钱，流通起来才作数。给出去的会以另一种形式流回来——这是后面「礼物互惠」要细讲的部分。</p>
+        <p>这五种面值，没人样样占全。聪明的做法是知道自己手里哪几张最厚，就反复打那几张；也知道自己哪几张薄，就少在那个场域硬撑。与其补短板，不如把长板磨到别人绕不开你。</p>
+      </section>
+
+      <div class="section-break" aria-hidden="true">❦</div>
+
+      <!-- ============ 第二部分 ============ -->
+      <section data-reveal>
+        <p class="section-kicker">Part Two</p>
+        <h2 class="part">七大社交货币的修炼</h2>
+        <p>每种货币都得走完一条闭环：<b>输入 -> 内化 -> 输出</b>。只进不出成了书袋，只出不进就成了空壳。下面七种，不必样样精通，挑两三种养深一点，够你在大多数场合应付自如。</p>
+
+        <div class="currency">
+          <div class="currency-head"><span class="n">01</span><span class="t">语言</span><span class="basis">GOFFMAN · 拟剧</span></div>
+          <p>戈夫曼说，语言是你在「前台」最重要的表演媒介。与其说它是话术，不如说是你让人感到安全、被接住的方式。</p>
+          <div class="loop">
+            <div><b>输入</b>读《非暴力沟通》，建一个金句库，拆解高情商对话的心理机制。</div>
+            <div><b>内化</b>把别人的话当成镜子，先理解再回应。</div>
+            <div><b>输出</b>三个随时可调用的公式。</div>
+          </div>
+          <div class="formula"><b>接话</b>肯定事实 ＋ 延伸感受 ＋ 抛回问题。</div>
+          <div class="formula"><b>拒绝</b>感谢邀请 ＋ 客观理由 ＋ 替代方案。</div>
+          <div class="formula"><b>留白</b>在话题高潮处主动暂停--「这个点太有意思了，改天必须专门找个时间跟你好好请教。」</div>
+        </div>
+
+        <div class="currency">
+          <div class="currency-head"><span class="n">02</span><span class="t">音乐</span><span class="basis">场域情绪遥控器</span></div>
+          <p>音乐是你调动一场局的情绪最隐蔽的工具。它不抢话，却在暗中决定一桌人是松弛还是紧绷。你不必是 DJ，但要会按场域调频。</p>
+          <div class="loop">
+            <div><b>输入</b>建三份歌单：破冰、高潮、收尾。平时听到合适的曲子，随手归档进对应那份。</div>
+            <div><b>内化</b>记住一条：音量永远略低于交谈声。一旦盖过人声，场子就开始散。</div>
+            <div><b>输出</b>按场域三段切换，用节奏而非音量控场。</div>
+          </div>
+          <div class="formula"><b>破冰</b>Lofi / 轻爵士，音量压低，让人松弛下来。</div>
+          <div class="formula"><b>高潮</b>换 Funk / Disco，把气氛往上顶。</div>
+          <div class="formula"><b>收尾</b>回到舒缓钢琴，暗示适可而止。</div>
+        </div>
+
+        <div class="currency">
+          <div class="currency-head"><span class="n">03</span><span class="t">餐饮与美学</span><span class="basis">具身化的信任</span></div>
+          <p>一桌好菜的作用，远不止让人吃饱。它是把人从「客人」变成「参与者」最自然的道具。</p>
+          <div class="loop">
+            <div><b>输入</b>精通三到五道拿手菜，其中至少一道可以让人上手帮忙。</div>
+            <div><b>内化</b>把做饭当成一场低强度的共同仪式，而不是表演厨艺。</div>
+            <div><b>输出</b>邀请轻度协作，把破冰藏进动作里。</div>
+          </div>
+          <div class="formula"><b>协作清单</b>一起调酒、包饺子、烤肉、择菜--手一旦忙起来，嘴反而最容易说真话。</div>
+          <div class="formula"><b>心法</b>信任不是聊出来的，是在具体的动作里，一点点长出来的。</div>
+        </div>
+
+        <div class="currency">
+          <div class="currency-head"><span class="n">04</span><span class="t">牌局</span><span class="basis">规则下的显微镜</span></div>
+          <p>牌桌是观察一个人决策风格与情绪控制力最便宜的实验室。同样的规则，能照出不同的人。</p>
+          <div class="loop">
+            <div><b>输入</b>懂一两种规则简单的牌（麻将、德州、掼蛋），足以应付大多数局。</div>
+            <div><b>内化</b>把输赢看淡，把注意力放在「人」上，而不是「牌」上。</div>
+            <div><b>输出</b>四个观察维度，看人比打牌有意思。</div>
+          </div>
+          <div class="formula"><b>观察清单</b>赢时是否张狂、输时是否失态、犹豫时如何掩饰、出错时怪谁。</div>
+          <div class="formula"><b>禁忌</b>切忌较真与翻脸--牌局是社交，不是赌场。输得起，比赢得漂亮更让人觉得靠谱。</div>
+        </div>
+
+        <div class="currency">
+          <div class="currency-head"><span class="n">05</span><span class="t">茶与酒</span><span class="basis">时间的催化剂</span></div>
+          <p>茶和酒真正的本事，不是让人醉，而是把时间拉长、把节奏放慢，让深的话有机会浮上来。</p>
+          <div class="loop">
+            <div><b>输入</b>茶认得几款性价合适的口粮茶；酒能调两三杯基础款，知道自己的量在哪。</div>
+            <div><b>内化</b>把它们当成「调慢时间」的工具，而不是灌醉人的手段。</div>
+            <div><b>输出</b>按场景分用，一深一广。</div>
+          </div>
+          <div class="formula"><b>茶</b>适合一对一的慢思考，一泡一泡地喝，话题会自己往深里走。</div>
+          <div class="formula"><b>酒</b>适合小范围的氛围放松，三两杯后，人会卸下平时那层壳。</div>
+          <div class="formula"><b>禁忌</b>不劝酒、不拼酒、不失态。这三条破了，茶酒就从催化剂变成了腐蚀剂。</div>
+        </div>
+
+        <div class="currency">
+          <div class="currency-head"><span class="n">06</span><span class="t">玄学与性格工具</span><span class="basis">安全的自我暴露</span></div>
+          <p>MBTI、星座、九型人格，准不准另说，但它们提供了一套无防御机制的「自我暴露框架」。人们平时羞于谈论自己，却乐于在这套框架下大方剖析。</p>
+          <div class="loop">
+            <div><b>输入</b>挑一两种主流工具（MBTI / 星座）了解框架，不必信，但要懂行话。</div>
+            <div><b>内化</b>把它当钥匙，不是判词--借框架让人愿意开口，而非贴标签。</div>
+            <div><b>输出</b>用「你是哪种」开场，把寒暄引向自我表达。</div>
+          </div>
+          <div class="formula"><b>破冰话术</b>「你是 I 人还是 E 人？」比「你最近怎么样」更容易撬出真话。</div>
+          <div class="formula"><b>边界</b>别拿它给人下定义。框架是脚手架，关系长起来后就得拆掉。</div>
+        </div>
+
+        <div class="currency">
+          <div class="currency-head"><span class="n">07</span><span class="t">游戏</span><span class="basis">通用数字语言</span></div>
+          <p>对年轻一代，游戏是母语。它绕开寒暄，直接进入协作和共情--一起打过一局的人，天然比只交换过名片的人近一层。</p>
+          <div class="loop">
+            <div><b>输入</b>备一两款多人派对游戏（Switch《马里奥派对》《胡闹厨房》），了解一两款热门大作的梗。</div>
+            <div><b>内化</b>把游戏当成一起经历一件事，而不是打发时间。</div>
+            <div><b>输出</b>按局型分用，一广一深。</div>
+          </div>
+          <div class="formula"><b>欢乐局</b>派对游戏，多人速配，靠协作和互坑迅速建立默契。</div>
+          <div class="formula"><b>深度局</b>大作单机，慢慢聊审美与叙事，把「一起玩过」变成「一起经历过」。</div>
+        </div>
+      </section>
+
+      <div class="section-break" aria-hidden="true">❦</div>
+
+      <!-- ============ 第三部分 ============ -->
+      <section data-reveal>
+        <p class="section-kicker">Part Three</p>
+        <h2 class="part">社交链路七步法</h2>
+        <p>把戈夫曼的「拟剧管理」与莫斯的「礼物互惠」拼在一起，一条完整的社交链路就浮现了。它从一个夜晚的预加载，一直延伸到 48 小时后的跟单闭环。</p>
+
+        <div class="flow" aria-label="社交链路七步">
+          <span class="node">预加载</span><span class="arr">→</span>
+          <span class="node">破冰</span><span class="arr">→</span>
+          <span class="node">暖场</span><span class="arr">→</span>
+          <span class="node">抛砖</span><span class="arr">→</span>
+          <span class="node">接球</span><span class="arr">→</span>
+          <span class="node">留白</span><span class="arr">→</span>
+          <span class="node">钩子与跟单</span>
+        </div>
+
+        <div class="steps">
+          <div class="step"><div class="num">01</div><div class="body"><b>预加载</b>（入场前）<span class="mind">了解背景，准备 2–3 个通用话题。不预设具体回报，只做播种。</span></div></div>
+          <div class="step"><div class="num">02</div><div class="body"><b>破冰</b>（建立安全区）<span class="mind">从环境、音乐等低威胁话题切入。展现得体与无害。</span></div></div>
+          <div class="step"><div class="num">03</div><div class="body"><b>暖场</b>（调频至舒适区）<span class="mind">照顾边缘朋友，微调场域气场。成为社交的「恒温器」。</span></div></div>
+          <div class="step"><div class="num">04</div><div class="body"><b>抛砖</b>（激活表达）<span class="mind">抛出开放式问题。多引导，少抢话。</span></div></div>
+          <div class="step"><div class="num">05</div><div class="body"><b>接球</b>（反射性回应）<span class="mind">复述并确认对方核心观点。提供「被深刻理解」的满足感。</span></div></div>
+          <div class="step"><div class="num">06</div><div class="body"><b>留白</b>（控制边界）<span class="mind">严守前后台边界，在私人话题前刹车。适可而止，留有余味。</span></div></div>
+          <div class="step key"><div class="num">07</div><div class="body"><b>钩子与跟单</b>（48 小时闭环）<span class="mind">抛出微小资源「礼物」，并在 48 小时内兑现：发一份电子书、推一首歌、约一杯咖啡。启动莫斯的互惠机制，它决定了 90% 的社交转化率。</span></div></div>
+        </div>
+
+        <blockquote class="pull">「改天」这两个字最不结实。<br>说着说着，就没了下文。</blockquote>
+        <p>七步里，前六步都在场内完成，唯独第七步发生在离场之后。可一夜到底是又散了一次场，还是多了一段关系，往往就差在这步上。48 小时，是「改天」变成「真的」的那道坎。</p>
+      </section>
+
+      <div class="section-break" aria-hidden="true">❦</div>
+
+      <!-- ============ 尾部彩蛋 ============ -->
+      <section data-reveal>
+        <p class="section-kicker">Easter Egg · 东方彩蛋</p>
+        <h2 class="part">社交直觉校准器</h2>
+        <p>社会学搭好了框架，东方那套性格模型，倒像一把量直觉的尺子。你若对紫微、八字略有接触，会发现它们拿来校准社交直觉挺顺手——不必当宿命看，当成一种关于能量流向的老隐喻就好。下面三种常见的配置，恰好对应三种典型的社交盲点。</p>
+
+        <div class="archetype">
+          <div class="ah"><span class="t">刚柔并济型</span><span class="tag">如 武曲破军 ＋ 天相文昌</span></div>
+          <p>你的魅力，本来就不靠无底线的圆滑撑着，而是那份带锋芒的优雅。天相是得体的壳，武曲是里头的刚。</p>
+          <div class="fix"><b>修炼</b>不要试图讨好所有人。保持你的锐利，只是用更优雅的方式表达。</div>
+        </div>
+
+        <div class="archetype">
+          <div class="ah"><span class="t">口舌契约过载</span><span class="tag">如 化忌在文昌 / 文曲</span></div>
+          <p>这是典型的「言语契约过载」警示。你的表达能力很强，但容易言多必失，或在无意中做出难以兑现的承诺。</p>
+          <div class="fix"><b>修炼</b>话说七分；重要的事落到文字；敏感话题当面澄清。你的天赋是那把刀，要学的不是锋利，而是入鞘。</div>
+        </div>
+
+        <div class="archetype">
+          <div class="ah"><span class="t">能量消耗型</span><span class="tag">如 交友宫逢巨门 / 陷</span></div>
+          <p>提示你必须严格执行前面提到的「三层关系过滤器」。你身边不缺热闹，但知心者需要深度筛选，否则社交负能量会持续抽干你。</p>
+          <div class="fix"><b>修炼</b>把 80% 的能量从泛连接里撤回，泼向 5–15 人的滋养层。热闹可以顺其自然，深度必须刻意经营。</div>
+        </div>
+
+        <p class="disclaimer">命盘与其说是判词，不如说是课题。它点出的不是「你会怎样」，更像是「你的能量容易往哪儿漏」——漏的地方，恰好就是能修的地方。所谓「化忌为用」，无非把走偏的那股能量，重新接回它该走的河道。</p>
+      </section>
+
+      <div class="section-break" aria-hidden="true">❦</div>
+
+      <!-- ============ 互动卡片生成器 ============ -->
+      <section data-reveal>
+        <p class="section-kicker">Interactive · 互动钩子</p>
+        <h2 class="part">你的社交能量避坑卡</h2>
+        <p>选一个最接近你的核心性格，生成一张专属的避坑卡：你的核心社交货币、你最该补上的能量漏洞，还有一句送给你的话。可以长按或下载保存。</p>
+
+        <div class="cardgen">
+          <div class="cardgen-head">
+            <div class="k">🔍 测测你的东方社交盲点</div>
+            <p class="t">请选择你的核心性格</p>
+          </div>
+          <div class="field">
+            <div class="trait-grid" id="traitGrid"></div>
+          </div>
+          <button class="gen-btn" id="genBtn" type="button" disabled>🎯 一键生成我的社交能量避坑卡</button>
+
+          <div class="card-out" id="cardOut">
+            <canvas id="cardCanvas" width="920" height="1240"></canvas>
+            <div class="card-actions">
+              <button id="downloadBtn" type="button">⬇ 保存为图片</button>
+              <button id="regenBtn" type="button">↺ 重新选择</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-break" aria-hidden="true">❦</div>
+
+      <section class="ending" data-reveal>
+        <p>走到最后，这套系统要交付的，不是把你磨得更圆滑，而是让你在社交里更松地做自己。能量有分寸，货币能流转，链路跑得通——散场之后，你大概不必再对着通讯录里那几个新名字，发半天愣。</p>
+        <p class="last-line">散场之后 48 小时，<br>那几个名字里，有一个会慢慢变成朋友。</p>
+      </section>
+    </article>
+  </main>
+
+  <footer>
+    <span>社交货币与能量管理 · 社交操作系统</span>
+    <button class="utility" id="shareButton" type="button" aria-label="复制阅读链接">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 12.5 16.5 7M8 11.5 16.5 17M7 19a3 3 0 1 1 0-6h2m6-2h2a3 3 0 1 1 0 6h-2m-5-6h6a3 3 0 1 1 0 6h-2m-6-6H6a3 3 0 1 1 0-6h2m2 3h6a3 3 0 1 1 0 6h-2"/></svg>
+      <span>复制阅读链接</span>
+    </button>
+  </footer>
+
+  <script>
+  (() => {
+    /* ---------- 进度条 + 滚动浮现 ---------- */
+    const bar = document.getElementById('progressBar');
+    const updateProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = `${scrollable ? (window.scrollY / scrollable) * 100 : 0}%`;
+    };
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+    }, { rootMargin: '-10% 0px -60% 0px', threshold: 0 });
+    document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+    /* 七步法流程节点：滚动到时依次点亮，像流程被「跑通」 */
+    const flow = document.querySelector('.flow');
+    if (flow) {
+      const flowObs = new IntersectionObserver(es => {
+        es.forEach(e => {
+          if (e.isIntersecting) {
+            flow.querySelectorAll('.node').forEach((n, i) => setTimeout(() => n.classList.add('lit'), i * 160));
+            flowObs.unobserve(flow);
+          }
+        });
+      }, { threshold: 0.35 });
+      flowObs.observe(flow);
+    }
+
+    /* ---------- 分享 ---------- */
+    const shareButton = document.getElementById('shareButton');
+    shareButton.addEventListener('click', async () => {
+      const label = shareButton.querySelector('span');
+      try {
+        if (navigator.share) { await navigator.share({ title: document.title, text: '社交货币与能量管理｜社交操作系统', url: location.href }); return; }
+        await navigator.clipboard.writeText(location.href);
+        label.textContent = '链接已复制'; setTimeout(() => label.textContent = '复制阅读链接', 1800);
+      } catch (_) { label.textContent = '可直接分享当前文件'; setTimeout(() => label.textContent = '复制阅读链接', 1800); }
+    });
+
+    /* ---------- 避坑卡数据 ---------- */
+    const TRAITS = [
+      { id:'intj', name:'建筑师型', sub:'INTJ · 智力驱动', currency:'智力价值', flaw:'留白过度变成疏离；48 小时跟单常被「等想清楚再说」无限拖延', motto:'你的锐利是礼物，但连接需要落到一个具体的约定。' },
+      { id:'enfp', name:'灵感型', sub:'ENFP · 情绪与连接驱动', currency:'情绪价值 ＋ 连接价值', flaw:'关系铺得太广太浅，能量被一面之交悄悄抽干', motto:'你点亮了很多人，记得把最亮的光留给少数几个。' },
+      { id:'master', name:'掌控型', sub:'刚柔并济 · 武曲破军', currency:'有锋芒的优雅（审美 ＋ 智力）', flaw:'不愿示弱，把圆滑当策略，反而损耗了真实的滋养层', motto:'不必讨好所有人。保持锐利，只用优雅的方式表达。' },
+      { id:'listener', name:'倾听型', sub:'茶酒 · 留白', currency:'茶与酒（时间催化剂）＋ 情绪价值', flaw:'只接球不抛砖，关系停在舒适区，永远不向前一步', motto:'你的沉默让人被看见，也试着让别人看见你。' },
+      { id:'speaker', name:'表达型', sub:'语言 · 文曲旺', currency:'语言', flaw:'口舌契约过载：言多必失，无意中做出难兑现的承诺', motto:'你的天赋是那把刀，要学的不是锋利，而是入鞘。' },
+      { id:'connector', name:'社交达人型', sub:'连接 · 交友宫逢耗', currency:'连接价值', flaw:'热闹不缺但知心稀缺；不执行三层过滤，能量持续外漏', motto:'你从不缺热闹，缺的是把热闹筛成滋养的那只滤网。' },
+    ];
+
+    const grid = document.getElementById('traitGrid');
+    const genBtn = document.getElementById('genBtn');
+    const cardOut = document.getElementById('cardOut');
+    const canvas = document.getElementById('cardCanvas');
+    const ctx = canvas.getContext('2d');
+    let picked = null;
+
+    grid.innerHTML = TRAITS.map(t => `
+      <button class="trait" type="button" data-id="${t.id}">
+        ${t.name}<small>${t.sub}</small>
+      </button>`).join('');
+
+    grid.addEventListener('click', e => {
+      const btn = e.target.closest('[data-id]');
+      if (!btn) return;
+      picked = btn.dataset.id;
+      grid.querySelectorAll('.trait').forEach(b => b.classList.toggle('picked', b.dataset.id === picked));
+      genBtn.disabled = false;
+    });
+
+    /* ---------- 文本换行（按字符） ---------- */
+    function wrap(ctx, text, x, y, maxW, lineH, font) {
+      ctx.font = font;
+      let line = '', yy = y;
+      for (const ch of text) {
+        const test = line + ch;
+        if (ctx.measureText(test).width > maxW && line) {
+          ctx.fillText(line, x, yy); line = ch; yy += lineH;
+        } else { line = test; }
+      }
+      if (line) ctx.fillText(line, x, yy);
+      return yy + lineH;
+    }
+
+    /* ---------- 绘制卡片 ---------- */
+    function drawCard(t) {
+      const W = canvas.width, H = canvas.height;
+      /* 底 */
+      ctx.fillStyle = '#fffaf3'; ctx.fillRect(0, 0, W, H);
+      /* 纸纹（轻噪点近似：几道淡线） */
+      ctx.strokeStyle = 'rgba(143,74,58,.04)'; ctx.lineWidth = 1;
+      for (let i = 0; i < H; i += 6) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke(); }
+      /* 外框 */
+      ctx.strokeStyle = '#8f4a3a'; ctx.lineWidth = 3; ctx.strokeRect(34, 34, W - 68, H - 68);
+      ctx.strokeStyle = 'rgba(143,74,58,.3)'; ctx.lineWidth = 1; ctx.strokeRect(44, 44, W - 88, H - 88);
+
+      const cx = W / 2, pad = 110;
+      let y = 150;
+      /* 顶标 */
+      ctx.fillStyle = '#8f4a3a'; ctx.textAlign = 'center';
+      ctx.font = '700 26px -apple-system,"PingFang SC",sans-serif';
+      ctx.fillText('社 交 能 量 避 坑 卡', cx, y);
+      y += 18;
+      ctx.strokeStyle = '#8f4a3a'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx - 60, y); ctx.lineTo(cx + 60, y); ctx.stroke();
+      y += 60;
+
+      /* 性格名 */
+      ctx.fillStyle = '#27231f';
+      ctx.font = '600 44px "Noto Serif CJK SC","Songti SC",serif';
+      ctx.fillText(t.name, cx, y);
+      y += 30;
+      ctx.fillStyle = '#aa9f93';
+      ctx.font = '400 22px -apple-system,"PingFang SC",sans-serif';
+      ctx.fillText(t.sub, cx, y);
+      y += 70;
+
+      /* 核心社交货币 */
+      y = block('核心社交货币', t.currency, '#6c8170', y);
+      y += 30;
+      /* 能量漏洞 */
+      y = block('社交能量漏洞', t.flaw, '#8f4a3a', y);
+      y += 40;
+
+      /* 赠言 */
+      ctx.fillStyle = '#82776d'; ctx.textAlign = 'center';
+      ctx.font = '700 20px -apple-system,"PingFang SC",sans-serif';
+      ctx.fillText('一 句 赠 言', cx, y);
+      y += 36;
+      ctx.fillStyle = '#6b3226';
+      y = wrap(ctx, `「${t.motto}」`, cx, y, W - pad * 2, 38, 'italic 30px "Noto Serif CJK SC","Songti SC",serif');
+
+      /* 底栏 */
+      ctx.fillStyle = '#aa9f93'; ctx.textAlign = 'center';
+      ctx.font = '400 18px -apple-system,"PingFang SC",sans-serif';
+      ctx.fillText('社交货币与能量管理 · 社交操作系统', cx, H - 90);
+      ctx.font = '400 16px -apple-system,"PingFang SC",sans-serif';
+      ctx.fillText('在社交中更像你自己，才是最高级的系统修炼。', cx, H - 62);
+
+      function block(label, content, color, yy) {
+        ctx.textAlign = 'left';
+        ctx.fillStyle = color; ctx.font = '700 20px -apple-system,"PingFang SC",sans-serif';
+        ctx.fillText(label, pad, yy);
+        yy += 34;
+        ctx.fillStyle = '#27231f';
+        yy = wrap(ctx, content, pad, yy, W - pad * 2, 36, '400 26px "Noto Serif CJK SC","Songti SC",serif');
+        return yy;
+      }
+    }
+
+    genBtn.addEventListener('click', () => {
+      if (!picked) return;
+      const t = TRAITS.find(x => x.id === picked);
+      drawCard(t);
+      cardOut.classList.add('show');
+      cardOut.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const a = document.createElement('a');
+      a.download = '社交能量避坑卡.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    });
+    document.getElementById('regenBtn').addEventListener('click', () => {
+      cardOut.classList.remove('show');
+      picked = null;
+      grid.querySelectorAll('.trait').forEach(b => b.classList.remove('picked'));
+      genBtn.disabled = true;
+      document.querySelector('.cardgen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  })();
+  </script>
+</body>
+</html>

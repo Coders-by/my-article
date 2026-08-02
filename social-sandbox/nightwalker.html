@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0c0e13">
+  <meta name="description" content="社交剧场 No.02：社交夜游人。一场三分钟的微型沉浸--从身体疲惫，到心理卡顿，到渴望破局。">
+  <title>社交夜游人｜社交剧场 No.02</title>
+  <style>
+    /* ============================================================
+       社交剧场 No.02 · 社交夜游人
+       自包含单文件。暗色剧场，与仓库暖纸长文形成对比。
+       声音由 Web Audio API 实时合成，零二进制资源。
+       结构对标 financial-sandbox/baht.html：state + renderSceneN + go()。
+       ============================================================ */
+    :root {
+      --bg: #0c0e13;
+      --ink: #e9e6df;
+      --muted: #9498a1;
+      --faint: #5a5e68;
+      --line: rgba(233, 230, 223, .12);
+      --line-soft: rgba(233, 230, 223, .06);
+      --neon: #e08a4e;          /* 暖霓虹，仓库 accent 家族的暗色提亮版 */
+      --neon-deep: #b96a36;
+      --cool: #6f9aa8;          /* 冷静态辅色 */
+      --risk: #d6553f;          /* 电量告急红 */
+      --paper: #14171f;
+      --serif: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --mono: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(120% 55% at 50% 118%, rgba(224, 138, 78, .12), transparent 58%),
+        radial-gradient(70% 45% at 82% 112%, rgba(111, 154, 168, .09), transparent 55%),
+        radial-gradient(60% 40% at 16% 110%, rgba(214, 85, 63, .07), transparent 55%),
+        linear-gradient(180deg, #0c0e13 0%, #090b0f 100%);
+      background-attachment: fixed;
+      font-family: var(--serif);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      min-height: 100vh;
+    }
+    /* 霓虹雨后路面反光：底部几道模糊竖向光带 */
+    body::after {
+      content: "";
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      height: 38vh;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, transparent, rgba(224, 138, 78, .05) 70%, rgba(224, 138, 78, .08)),
+        repeating-linear-gradient(90deg, transparent 0 38px, rgba(224, 138, 78, .05) 38px 40px, transparent 40px 96px, rgba(111, 154, 168, .04) 96px 98px, transparent 98px 160px);
+      filter: blur(7px);
+      opacity: .7;
+      z-index: 0;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .05;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+      z-index: 1;
+    }
+    button { font: inherit; cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ---------- 顶栏 ---------- */
+    .bar {
+      position: sticky; top: 0; z-index: 12;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: .8rem clamp(20px, 4vw, 48px);
+      background: rgba(12, 14, 19, .72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      font-family: var(--sans);
+    }
+    .bar-back { color: var(--muted); font-size: .72rem; letter-spacing: .04em; transition: color .2s; }
+    .bar-back:hover { color: var(--ink); }
+    .bar-name { font-size: .66rem; letter-spacing: .26em; color: var(--ink); text-indent: .26em; }
+    .bar-ctrl { display: flex; align-items: center; gap: .6rem; }
+    .ctrl {
+      padding: .45rem .8rem;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--sans);
+      font-size: .62rem;
+      letter-spacing: .14em;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .ctrl:hover { color: var(--ink); border-color: var(--neon); }
+    .ctrl.muted { color: var(--faint); }
+
+    /* ---------- 舞台 ---------- */
+    .stage-wrap { position: relative; z-index: 2; width: min(720px, calc(100% - 40px)); margin: 0 auto; padding: clamp(40px, 7vw, 80px) 0 120px; }
+    #stage { transition: opacity .3s ease, transform .3s ease; }
+    .scene { display: flex; flex-direction: column; gap: 2rem; }
+
+    /* ---------- 通用排版 ---------- */
+    .eyebrow { margin: 0; color: var(--neon); font-family: var(--sans); font-size: .62rem; font-weight: 700; letter-spacing: .26em; text-indent: .26em; }
+    .scene-title { margin: .3rem 0 0; font-size: clamp(1.9rem, 4.4vw, 2.6rem); font-weight: 600; letter-spacing: .04em; line-height: 1.3; }
+    .prose { margin: 0; font-size: 1.06rem; line-height: 2; color: #d8d5ce; }
+    .lead { font-size: 1.14rem; line-height: 1.95; }
+    .caption { margin: 2rem 0 0; color: var(--faint); font-family: var(--sans); font-size: .6rem; letter-spacing: .14em; line-height: 1.9; }
+
+    /* ---------- 封面 ---------- */
+    .cover { text-align: center; padding: 2rem 0; }
+    .cover-kicker { margin: 0 0 1.6rem; color: var(--neon); font-family: var(--sans); font-size: .64rem; letter-spacing: .5em; text-indent: .5em; font-weight: 700; }
+    .cover h1 { margin: 0; font-size: clamp(3rem, 9vw, 4.6rem); font-weight: 600; letter-spacing: .12em; text-indent: .12em; line-height: 1.2; }
+    .cover-line { display: flex; align-items: center; gap: 1rem; width: 8rem; margin: 1.8rem auto; color: var(--faint); }
+    .cover-line::before, .cover-line::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    .cover-sub { max-width: 30rem; margin: 0 auto; color: var(--muted); font-size: 1.06rem; line-height: 2; }
+    .cover-foot { margin: 2.4rem auto 0; max-width: 28rem; color: var(--faint); font-family: var(--sans); font-size: .6rem; letter-spacing: .14em; line-height: 1.9; }
+
+    /* ---------- 推进按钮 ---------- */
+    .advance { display: inline-flex; align-items: center; gap: .6rem; margin-top: .4rem; padding: .85rem 1.5rem; border: 1px solid var(--neon); background: var(--neon); color: #1a1208; font-family: var(--sans); font-size: .7rem; letter-spacing: .18em; font-weight: 700; transition: opacity .2s, transform .2s; }
+    .advance:hover { opacity: .88; transform: translateX(2px); }
+    .advance.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+    .advance.ghost:hover { border-color: var(--neon); color: var(--neon); }
+    .end-actions { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; }
+
+    /* ---------- Act1：路面 / 手机 / 按住 ---------- */
+    .phone-notify {
+      align-self: flex-start;
+      max-width: 22rem;
+      padding: .85rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(20, 23, 31, .8);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 40px rgba(224, 138, 78, .06);
+      font-family: var(--sans);
+    }
+    .phone-notify .row { display: flex; align-items: center; gap: .6rem; }
+    .phone-notify .app { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #2faa6a, #1d7e4d); display: grid; place-items: center; color: #fff; font-size: .7rem; font-weight: 700; }
+    .phone-notify .app-name { font-size: .7rem; color: var(--muted); letter-spacing: .04em; }
+    .phone-notify .time { margin-left: auto; font-size: .6rem; color: var(--faint); }
+    .phone-notify .body { margin: .55rem 0 0; font-size: .9rem; line-height: 1.6; color: var(--ink); }
+    .phone-notify .body b { color: var(--neon); font-weight: 600; }
+
+    .monologue {
+      margin: 0;
+      padding: .2rem 0 .2rem 1.1rem;
+      border-left: 2px solid var(--neon);
+      color: #cfcbbf;
+      font-size: 1.08rem;
+      line-height: 2;
+      font-style: italic;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+    .monologue.show { opacity: 1; transform: none; }
+
+    /* 按住手势 */
+    .hold {
+      position: relative;
+      align-self: center;
+      margin: 1.5rem 0;
+      width: 168px; height: 168px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: radial-gradient(circle at 50% 40%, rgba(224,138,78,.10), transparent 70%);
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: border-color .3s, background .3s;
+    }
+    .hold.holding { border-color: var(--neon); background: radial-gradient(circle at 50% 40%, rgba(224,138,78,.18), transparent 70%); }
+    .hold-inner { text-align: center; font-family: var(--sans); }
+    .hold-inner .ico { font-size: 1.5rem; line-height: 1; margin-bottom: .5rem; }
+    .hold-inner .t { font-size: .68rem; letter-spacing: .16em; color: var(--ink); }
+    .hold-inner .s { margin-top: .4rem; font-size: .56rem; letter-spacing: .12em; color: var(--faint); }
+    .hold-ring { position: absolute; inset: 0; transform: rotate(-90deg); }
+    .hold-ring circle { fill: none; stroke: var(--neon); stroke-width: 2; stroke-linecap: round; }
+    .hold.holding .hold-ring circle { filter: drop-shadow(0 0 6px rgba(224,138,78,.6)); }
+
+    /* ---------- Act2：聊天 / 分支 ---------- */
+    .chat { display: flex; flex-direction: column; gap: .8rem; }
+    .chat-head { display: flex; align-items: center; gap: .7rem; padding: .7rem .9rem; border: 1px solid var(--line); border-radius: 12px 12px 0 0; background: rgba(20,23,31,.7); font-family: var(--sans); border-bottom: 0; }
+    .chat-avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--neon-deep), var(--cool)); display: grid; place-items: center; color: #fff; font-size: .72rem; font-weight: 700; }
+    .chat-name { font-size: .82rem; color: var(--ink); }
+    .chat-sub { font-size: .58rem; color: var(--faint); letter-spacing: .08em; }
+    .chat-time { margin-left: auto; font-size: .58rem; color: var(--faint); }
+
+    .bubble-row { display: flex; padding: 0 .9rem; }
+    .bubble-row.in { justify-content: flex-start; }
+    .bubble-row.out { justify-content: flex-end; }
+    .bubble {
+      max-width: 78%;
+      padding: .7rem .9rem;
+      border-radius: 14px;
+      font-size: .94rem;
+      line-height: 1.7;
+    }
+    .bubble.in { background: rgba(255,255,255,.07); border: 1px solid var(--line); border-top-left-radius: 4px; color: #e1ded7; }
+    .bubble.out { background: rgba(224,138,78,.16); border: 1px solid rgba(224,138,78,.3); border-top-right-radius: 4px; color: #f0e3d2; }
+
+    .prompt { margin: 0; font-size: 1rem; line-height: 1.9; color: var(--ink); }
+    .choices { display: grid; gap: .7rem; }
+    .choice {
+      display: flex; align-items: baseline; gap: .8rem;
+      width: 100%; padding: .95rem 1.1rem; text-align: left;
+      border: 1px solid var(--line); background: rgba(20,23,31,.6); color: var(--ink);
+      transition: border-color .2s, background .2s, transform .2s;
+    }
+    .choice:hover { border-color: var(--neon); background: rgba(224,138,78,.08); transform: translateX(3px); }
+    .choice .num { color: var(--neon); font-family: var(--mono); font-size: .8rem; flex-shrink: 0; }
+    .choice .label { font-size: .96rem; line-height: 1.6; }
+    .choice .tag { margin-left: auto; color: var(--faint); font-family: var(--sans); font-size: .56rem; letter-spacing: .1em; flex-shrink: 0; }
+    .choice.picked { border-color: var(--neon); background: rgba(224,138,78,.1); }
+
+    /* 分支结果 */
+    .outcome { border: 1px solid var(--line); background: rgba(20,23,31,.55); padding: 1.4rem 1.4rem; }
+    .outcome-tag { margin: 0 0 .8rem; font-family: var(--sans); font-size: .58rem; letter-spacing: .2em; color: var(--cool); font-weight: 700; }
+    .outcome.faded .outcome-tag { color: var(--faint); }
+
+    .timelapse { display: flex; flex-direction: column; gap: .4rem; margin: 0 0 .9rem; font-family: var(--sans); }
+    .timelapse .ts { color: var(--faint); font-size: .72rem; letter-spacing: .12em; opacity: 0; transform: translateX(-6px); transition: opacity .6s, transform .6s; }
+    .timelapse .ts.in { opacity: 1; transform: none; }
+    .chat-sink { position: relative; }
+    .chat-sink .sink-inner { transition: opacity 1.4s ease, transform 1.4s ease, filter 1.4s ease; }
+    .chat-sink.sunk .sink-inner { opacity: .32; transform: translateY(14px); filter: blur(.6px); }
+    .dust { position: absolute; inset: -10px; pointer-events: none; background: radial-gradient(ellipse at 50% 30%, rgba(140,138,130,.18), transparent 70%); opacity: 0; transition: opacity 1.4s ease; border-radius: 12px; }
+    .chat-sink.sunk .dust { opacity: 1; }
+
+    .calendar { display: flex; align-items: center; gap: 1rem; }
+    .cal-card { width: 64px; flex-shrink: 0; border: 1px solid var(--neon); border-radius: 8px; overflow: hidden; text-align: center; font-family: var(--sans); }
+    .cal-card .m { background: var(--neon); color: #1a1208; font-size: .54rem; letter-spacing: .1em; padding: .18rem 0; font-weight: 700; }
+    .cal-card .d { padding: .35rem 0; font-size: 1.2rem; font-weight: 700; color: var(--ink); }
+    .cal-card .w { padding: 0 0 .3rem; font-size: .52rem; color: var(--muted); }
+    .cal-check { color: var(--neon); font-size: 1.1rem; }
+    .outcome-line { margin: .8rem 0 0; font-size: .98rem; line-height: 1.8; color: #d8d5ce; }
+
+    /* ---------- Act3：电池 / 逐行 / 卷轴 ---------- */
+    .battery-wrap { display: flex; flex-direction: column; align-items: center; gap: .9rem; margin: 1rem 0 .5rem; }
+    .battery { position: relative; width: 200px; height: 76px; border: 2px solid var(--line); border-radius: 8px; }
+    .battery::after { content: ""; position: absolute; right: -7px; top: 50%; transform: translateY(-50%); width: 5px; height: 30px; background: var(--line); border-radius: 0 3px 3px 0; }
+    .battery .fill { position: absolute; left: 4px; top: 4px; bottom: 4px; width: 15%; background: var(--risk); border-radius: 4px; box-shadow: 0 0 20px rgba(214,85,63,.55); animation: bpulse 1s ease-in-out infinite; }
+    @keyframes bpulse { 0%,100% { opacity: .72; } 50% { opacity: 1; } }
+    .battery.draining .fill { animation: bpulse 1s ease-in-out infinite, drain 2.2s ease-in forwards; }
+    @keyframes drain { to { width: 2.5%; } }
+    .battery.charging .fill { background: var(--neon); box-shadow: 0 0 26px rgba(224,138,78,.6); animation: charge 1.7s ease-out forwards; }
+    @keyframes charge { from { width: 2.5%; } to { width: 95%; } }
+    .battery-label { font-family: var(--mono); font-size: .8rem; color: var(--risk); letter-spacing: .04em; }
+    .battery-label.full { color: var(--neon); }
+
+    .strike-lines { display: flex; flex-direction: column; gap: 1.1rem; margin: .5rem 0; }
+    .strike-line {
+      margin: 0;
+      font-size: 1.14rem;
+      line-height: 1.9;
+      color: #e7e3da;
+      min-height: 1.9em;
+      border-left: 2px solid var(--neon);
+      padding-left: 1rem;
+      opacity: 0;
+    }
+    .strike-line.typing { opacity: 1; }
+    .strike-line.done { opacity: 1; }
+    .strike-line .cursor { display: inline-block; width: .5ch; color: var(--neon); animation: blink .7s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .strike-line em { font-style: normal; color: var(--neon); font-weight: 600; }
+
+    .bridge { max-height: 0; opacity: 0; overflow: hidden; transition: max-height .9s ease, opacity .9s ease; margin-top: 0; }
+    .bridge.show { max-height: 320px; opacity: 1; margin-top: 1.6rem; }
+    .bridge-inner { text-align: center; padding: 1.6rem 1.2rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+    /* ---------- 渐显步骤（sequencer 逐段浮现） ---------- */
+    .scene [data-step] { opacity: 0; transform: translateY(10px); transition: opacity .8s ease, transform .8s ease; }
+    .scene [data-step].show { opacity: 1; transform: none; }
+    .recap { opacity: 0; transform: translateY(10px); transition: opacity .8s ease, transform .8s ease; }
+    .recap.show { opacity: 1; transform: none; }
+
+    /* ---------- 暗->亮过渡（跳转长文时） ---------- */
+    .daybreak-overlay { position: fixed; inset: 0; background: #f4efe7; opacity: 0; pointer-events: none; transition: opacity .8s ease; z-index: 9999; }
+    .daybreak-overlay.on { opacity: 1; }
+
+    /* ---------- 联系人（Act1 翻看环节） ---------- */
+    .contacts { display: grid; gap: .6rem; }
+    .contact { display: flex; align-items: center; gap: .8rem; width: 100%; padding: .8rem 1rem; text-align: left; border: 1px solid var(--line); background: rgba(20,23,31,.5); color: var(--ink); transition: border-color .2s, background .2s; }
+    .contact:hover { border-color: var(--neon); }
+    .contact .cavatar { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; color: var(--faint); font-family: var(--mono); font-size: .8rem; flex-shrink: 0; }
+    .contact .cname { font-size: .92rem; }
+    .contact .cstatus { margin-left: auto; color: var(--neon); font-size: .82rem; opacity: 0; transition: opacity .4s ease; text-align: right; }
+    .contact.viewed { border-color: var(--neon); background: rgba(224,138,78,.06); }
+    .contact.viewed .cavatar { color: var(--neon); border-color: var(--neon); }
+    .contact.viewed .cstatus { opacity: 1; }
+    .contacts.done { opacity: .32; pointer-events: none; transition: opacity .6s ease; }
+
+    /* ---------- hold 容器（翻完联系人后展开） ---------- */
+    .hold-wrap { max-height: 0; overflow: hidden; opacity: 0; pointer-events: none; transition: max-height .8s ease, opacity .6s ease; }
+    .hold-wrap.show { max-height: 340px; opacity: 1; pointer-events: auto; }
+
+    /* ---------- 能量去向（Act3 盘点环节） ---------- */
+    .energy { display: grid; gap: .6rem; }
+    .energy-item { width: 100%; padding: .85rem 1rem; text-align: left; border: 1px solid var(--line); background: rgba(20,23,31,.5); color: var(--ink); transition: border-color .2s, background .2s; }
+    .energy-item:hover { border-color: var(--neon); }
+    .energy-item .ehead { display: flex; align-items: center; gap: .8rem; }
+    .energy-item .elabel { font-size: .94rem; flex-shrink: 0; min-width: 5em; }
+    .energy-item .ebar { flex: 1; height: 6px; border: 1px solid var(--line); background: rgba(0,0,0,.2); }
+    .energy-item .ebar i { display: block; height: 100%; background: var(--risk); opacity: .6; }
+    .energy-item .edetail { margin: .5rem 0 0; color: var(--muted); font-size: .86rem; line-height: 1.7; max-height: 0; overflow: hidden; opacity: 0; transition: max-height .4s ease, opacity .4s ease; }
+    .energy-item.viewed { border-color: var(--neon); background: rgba(224,138,78,.06); }
+    .energy-item.viewed .ebar i { background: var(--neon); opacity: .8; }
+    .energy-item.viewed .edetail { max-height: 80px; opacity: 1; }
+
+    /* ---------- folio ---------- */
+    .folio { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; color: var(--faint); font-family: var(--sans); font-size: .6rem; letter-spacing: .2em; }
+
+    /* ---------- 响应式 ---------- */
+    @media (max-width: 640px) {
+      .bar-name { font-size: .6rem; }
+      .hold { width: 148px; height: 148px; }
+      .battery { width: 170px; height: 66px; }
+      .strike-line { font-size: 1.04rem; }
+      .phone-notify { max-width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      #stage { transition: none; }
+      .monologue { transition: none; }
+      .battery .fill, .battery.draining .fill, .battery.charging .fill { animation: none !important; }
+      .strike-line .cursor { animation: none; }
+      .timelapse .ts { transition: none; }
+      .chat-sink .sink-inner, .dust { transition: none; }
+      .scene [data-step], .recap { transition: none; }
+      .contact, .contacts, .hold-wrap, .energy-item, .energy-item .edetail { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <a class="bar-back" href="../index.html">← 文章库</a>
+    <span class="bar-name">社交剧场 No.02</span>
+    <div class="bar-ctrl">
+      <button class="ctrl" id="muteBtn" type="button" aria-label="切换声音">声音</button>
+      <a class="ctrl" href="../reader.html?id=social-currency">跳过 →</a>
+    </div>
+  </header>
+
+  <main class="stage-wrap">
+    <div id="stage"></div>
+  </main>
+
+  <script>
+  /* ============================================================
+     声音引擎：Web Audio API 实时合成，零外部资源。
+     三层持续底噪（crowd 酒吧嘈杂 / wind 深夜风声 / lofi 软垫）
+     + 若干瞬态音效（buzz 震动 / collapse 电池坍缩 / charge 满电）。
+     AudioContext 在用户首次手势（封面“进入夜色”）时创建并 resume。
+     ============================================================ */
+  const Sound = {
+    ctx: null, master: null, ready: false, muted: false,
+    crowd: null, wind: null, lofi: null,
+
+    init() {
+      if (this.ctx) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      this.ctx = new AC();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = 0.8;
+      this.master.connect(this.ctx.destination);
+      this._buildBeds();
+      this.ready = true;
+    },
+    async resume() {
+      if (!this.ctx) return;
+      if (this.ctx.state === 'suspended') { try { await this.ctx.resume(); } catch (_) {} }
+    },
+
+    /* 粉红噪声 buffer（Paul Kellet 近似） */
+    _noise() {
+      const len = this.ctx.sampleRate * 3;
+      const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+      for (let i=0;i<len;i++){
+        const w = Math.random()*2-1;
+        b0 = 0.99886*b0 + w*0.0555179;
+        b1 = 0.99332*b1 + w*0.0750759;
+        b2 = 0.96900*b2 + w*0.1538520;
+        b3 = 0.86650*b3 + w*0.3104856;
+        b4 = 0.55000*b4 + w*0.5329522;
+        b5 = -0.7616*b5 - w*0.0168980;
+        d[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.35;
+        b6 = w*0.115926;
+      }
+      return buf;
+    },
+
+    _buildBeds() {
+      /* 每层都拆成 内层(被 LFO 调制) -> 外层(整体音量，set 只动这里)。
+         这样外层 ramp 到 0 时彻底静音，LFO 残留不会漏声。 */
+      const mkLfo = (freq, depth, target) => {
+        const o = this.ctx.createOscillator(); o.frequency.value = freq;
+        const g = this.ctx.createGain(); g.gain.value = depth;
+        o.connect(g); g.connect(target); o.start();
+      };
+
+      /* --- 酒吧嘈杂：粉噪 -> 高通 -> 带通(人声区) + 高频 shimmer --- */
+      const crowdSrc = this.ctx.createBufferSource();
+      crowdSrc.buffer = this._noise(); crowdSrc.loop = true;
+      const crowdHP = this.ctx.createBiquadFilter(); crowdHP.type='highpass'; crowdHP.frequency.value=380;
+      const crowdBP = this.ctx.createBiquadFilter(); crowdBP.type='bandpass'; crowdBP.frequency.value=880; crowdBP.Q.value=0.6;
+      const crowdInner = this.ctx.createGain(); crowdInner.gain.value=1;
+      mkLfo(0.16, 0.1, crowdInner.gain);
+      const crowdGain = this.ctx.createGain(); crowdGain.gain.value=0;
+      crowdSrc.connect(crowdHP); crowdHP.connect(crowdBP); crowdBP.connect(crowdInner); crowdInner.connect(crowdGain); crowdGain.connect(this.master);
+
+      const shSrc = this.ctx.createBufferSource();
+      shSrc.buffer = this._noise(); shSrc.loop=true;
+      const shBP = this.ctx.createBiquadFilter(); shBP.type='bandpass'; shBP.frequency.value=2700; shBP.Q.value=2.2;
+      const shGain = this.ctx.createGain(); shGain.gain.value=0;
+      shSrc.connect(shBP); shBP.connect(shGain); shGain.connect(this.master);
+
+      crowdSrc.start(); shSrc.start();
+      this.crowd = { gain: crowdGain, shimmer: shGain, _target: 0 };
+
+      /* --- 深夜风声：粉噪 -> 低通 + 慢 whoosh 调制 --- */
+      const windSrc = this.ctx.createBufferSource();
+      windSrc.buffer = this._noise(); windSrc.loop=true;
+      const windLP = this.ctx.createBiquadFilter(); windLP.type='lowpass'; windLP.frequency.value=440;
+      const windInner = this.ctx.createGain(); windInner.gain.value=1;
+      mkLfo(0.09, 0.06, windInner.gain);
+      const windGain = this.ctx.createGain(); windGain.gain.value=0;
+      windSrc.connect(windLP); windLP.connect(windInner); windInner.connect(windGain); windGain.connect(this.master);
+      const wF = this.ctx.createOscillator(); wF.frequency.value=0.07;
+      const wFG = this.ctx.createGain(); wFG.gain.value=170;
+      wF.connect(wFG); wFG.connect(windLP.frequency); wF.start();
+      windSrc.start();
+      this.wind = { gain: windGain, _target: 0 };
+
+      /* --- lofi 软垫：A 小三和弦三角波 + sub + 慢颤 --- */
+      const padGain = this.ctx.createGain(); padGain.gain.value=0;
+      const padLP = this.ctx.createBiquadFilter(); padLP.type='lowpass'; padLP.frequency.value=1100;
+      const padInner = this.ctx.createGain(); padInner.gain.value=1;
+      mkLfo(0.35, 0.12, padInner.gain);
+      padLP.connect(padInner); padInner.connect(padGain); padGain.connect(this.master);
+      [220, 261.63, 329.63].forEach((f,i)=>{
+        const o = this.ctx.createOscillator(); o.type='triangle'; o.frequency.value=f; o.detune.value=(i-1)*7;
+        const g = this.ctx.createGain(); g.gain.value = i===0?0.5:0.28;
+        o.connect(g); g.connect(padLP); o.start();
+      });
+      const sub = this.ctx.createOscillator(); sub.type='sine'; sub.frequency.value=110;
+      const subG = this.ctx.createGain(); subG.gain.value=0.22;
+      sub.connect(subG); subG.connect(padLP); sub.start();
+      this.lofi = { gain: padGain, _target: 0 };
+    },
+
+    /* 平滑设置某层底噪目标音量。node.gain 是 GainNode，其 .gain 才是 AudioParam */
+    set(name, target, time=2.6) {
+      const node = this[name];
+      if (!node || !this.ctx) return;
+      node._target = target;
+      const g = node.gain.gain, t = this.ctx.currentTime;
+      g.cancelScheduledValues(t);
+      g.setValueAtTime(Math.max(g.value, 0.0001), t);
+      g.linearRampToValueAtTime(this.muted ? 0.0001 : target, t + time);
+    },
+
+    /* 瞬态：手机震动 */
+    buzz(times=2) {
+      if (!this.ready || this.muted) { if(navigator.vibrate) navigator.vibrate([120,80,120]); return; }
+      const t0 = this.ctx.currentTime;
+      for (let i=0;i<times;i++){
+        const o=this.ctx.createOscillator(); o.type='sine'; o.frequency.value=76;
+        const g=this.ctx.createGain(); const s=t0+i*0.36;
+        g.gain.setValueAtTime(0,s);
+        g.gain.linearRampToValueAtTime(0.5,s+0.03);
+        g.gain.setValueAtTime(0.5,s+0.12);
+        g.gain.linearRampToValueAtTime(0,s+0.26);
+        o.connect(g); g.connect(this.master); o.start(s); o.stop(s+0.3);
+      }
+      if (navigator.vibrate) navigator.vibrate([120,80,120]);
+    },
+
+    /* 瞬态：电池坍缩（降调） */
+    collapse() {
+      if (!this.ready) return;
+      const t=this.ctx.currentTime, m=this.muted?0.0001:0.2;
+      const o=this.ctx.createOscillator(); o.type='sawtooth';
+      o.frequency.setValueAtTime(340,t);
+      o.frequency.exponentialRampToValueAtTime(64,t+3.2);
+      const lp=this.ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=820;
+      const g=this.ctx.createGain();
+      g.gain.setValueAtTime(0,t);
+      g.gain.linearRampToValueAtTime(m,t+0.25);
+      g.gain.setValueAtTime(m,t+2.5);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+3.5);
+      o.connect(lp); lp.connect(g); g.connect(this.master);
+      o.start(t); o.stop(t+3.6);
+    },
+
+    /* 瞬态：满电（升调明亮和弦） */
+    charge() {
+      if (!this.ready) return;
+      const t=this.ctx.currentTime, m=this.muted?0.0001:0.14;
+      [392, 493.88, 587.33, 783.99].forEach((f,i)=>{
+        const o=this.ctx.createOscillator(); o.type='triangle'; o.frequency.value=f;
+        const g=this.ctx.createGain(); const s=t+i*0.13;
+        g.gain.setValueAtTime(0,s);
+        g.gain.linearRampToValueAtTime(m,s+0.09);
+        g.gain.setValueAtTime(m,s+1.2);
+        g.gain.exponentialRampToValueAtTime(0.0001,s+2.1);
+        o.connect(g); g.connect(this.master); o.start(s); o.stop(s+2.2);
+      });
+    },
+
+    toggleMute() {
+      this.muted = !this.muted;
+      if (!this.ready) return this.muted;
+      ['crowd','wind','lofi'].forEach(n=>{
+        const node=this[n]; if(!node) return;
+        const g=node.gain.gain, t=this.ctx.currentTime;
+        g.cancelScheduledValues(t); g.setValueAtTime(Math.max(g.value,0.0001),t);
+        g.linearRampToValueAtTime(this.muted?0.0001:(node._target||0.0001), t+0.5);
+      });
+      return this.muted;
+    },
+
+    stopAll() { ['crowd','wind','lofi'].forEach(n=>this.set(n,0,1.1)); }
+  };
+
+  /* ============================================================
+     状态机
+     ============================================================ */
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const state = { scene: 0, holdDone: false, contactsViewed: 0, act2Choice: null, energyViewed: 0, energyResolve: null, act3Started: false };
+  const stage = document.getElementById('stage');
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  /* ---------- 暗->亮过渡：跳转长文时 ---------- */
+  function daybreak(href) {
+    const ov = document.createElement('div');
+    ov.className = 'daybreak-overlay';
+    document.body.appendChild(ov);
+    requestAnimationFrame(() => ov.classList.add('on'));
+    setTimeout(() => { location.href = href; }, 820);
+  }
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    const href = a.getAttribute('href') || '';
+    if (href.includes('reader.html') || href.includes('social-currency')) {
+      e.preventDefault();
+      daybreak(a.href);
+    }
+  });
+
+  function go(n) {
+    state.scene = n;
+    state.contactsViewed = 0;
+    state.energyViewed = 0;
+    state.energyResolve = null;
+    stage.style.opacity = '0';
+    stage.style.transform = 'translateY(8px)';
+    setTimeout(() => {
+      render();
+      stage.style.opacity = '1';
+      stage.style.transform = 'translateY(0)';
+      window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+      onEnter(n);
+      if (n === 0) bind();
+    }, 180);
+  }
+
+  function onEnter(n) {
+    if (n === 0) { if (Sound.ready) Sound.stopAll(); }
+    else if (n === 1) {
+      if (Sound.ready) { Sound.set('crowd', 0.55, 2.2); Sound._rampShimmer(0.09); }
+      runAct1();
+    } else if (n === 2) {
+      if (Sound.ready) Sound.buzz(2);
+      runAct2();
+    } else if (n === 3) {
+      if (!state.act3Started) { state.act3Started = true; runAct3(); }
+    }
+  }
+
+  Sound._rampShimmer = (v) => {
+    const s = Sound.crowd && Sound.crowd.shimmer;
+    if (!s || !Sound.ctx) return;
+    const g = s.gain, t = Sound.ctx.currentTime;
+    g.cancelScheduledValues(t);
+    g.setValueAtTime(Math.max(g.value, 0.0001), t);
+    g.linearRampToValueAtTime(Sound.muted ? 0.0001 : v, t + 2.2);
+    s._target = v;
+  };
+
+  async function revealSteps(delay) {
+    const steps = stage.querySelectorAll('[data-step]');
+    for (const el of steps) {
+      el.classList.add('show');
+      await wait(reduced ? 120 : delay);
+    }
+  }
+
+  function render() {
+    if (state.scene === 0) stage.innerHTML = renderCover();
+    else if (state.scene === 1) stage.innerHTML = renderAct1();
+    else if (state.scene === 2) stage.innerHTML = renderAct2();
+    else if (state.scene === 3) stage.innerHTML = renderAct3();
+  }
+
+  function folio(n, label) {
+    return `<div class="folio"><span>社交剧场 No.02</span><span>${String(n).padStart(2,'0')} / 03 · ${label}</span></div>`;
+  }
+
+  /* ---------- 封面 ---------- */
+  function renderCover() {
+    return `
+      <section class="scene cover">
+        <p class="cover-kicker">S O C I A L &nbsp; T H E A T R E</p>
+        <h1>社交夜游人</h1>
+        <div class="cover-line"><span>❦</span></div>
+        <p class="cover-sub">一场三分钟的微型沉浸。从身体疲惫，到心理卡顿，到渴望破局。</p>
+        <p class="cover-foot">戴上耳机，按住屏幕。声音为实时合成，无任何录音。<br>随时可静音或跳过，直接进入深度长文。</p>
+        <button class="advance" id="enterBtn">进入夜色 -></button>
+        ${folio(0, '封面')}
+      </section>`;
+  }
+
+  /* ---------- Act1 · 觉察疲惫（翻联系人 + 按住） ---------- */
+  function renderAct1() {
+    if (state.holdDone) {
+      return `
+      <section class="scene">
+        <p class="eyebrow">第一幕 · 觉察疲惫</p>
+        <h2 class="scene-title">散场之后</h2>
+        <p class="monologue show">每一次热闹的聚会过后，除了手机里多出的几个名字，似乎什么也没留下。</p>
+        <p class="monologue show">你开始怀疑，自己到底是在交朋友，还是在收集名片。</p>
+        <button class="advance" data-go="2">继续 · 一条新消息 -></button>
+        ${folio(1, '觉察疲惫')}
+      </section>`;
+    }
+    return `
+      <section class="scene">
+        <p class="eyebrow" data-step>第一幕 · 觉察疲惫</p>
+        <h2 class="scene-title" data-step>散场之后</h2>
+        <p class="prose lead">聚会散了。你站在路边等车，雨刚停，霓虹在路面上碎成一片。热闹还黏在身上，可安静一下来，疲惫就漫上来。</p>
+        <div class="phone-notify">
+          <div class="row"><div class="app">微</div><div><div class="app-name">微信</div></div><div class="time">01:14</div></div>
+          <div class="body">新增联系人 <b>+3</b></div>
+        </div>
+        <p class="prompt">三个新名字。点开看看，今晚都认识了谁。</p>
+        <div class="contacts" id="contacts">
+          <button class="contact" type="button" data-contact="0"><span class="cavatar">?</span><span class="cname">联系人 · 一</span><span class="cstatus">只记得递烟时的手势</span></button>
+          <button class="contact" type="button" data-contact="1"><span class="cavatar">?</span><span class="cname">联系人 · 二</span><span class="cstatus">聊了半小时项目，没记住名字</span></button>
+          <button class="contact" type="button" data-contact="2"><span class="cavatar">?</span><span class="cname">联系人 · 三</span><span class="cstatus">加了微信，一句没说过</span></button>
+        </div>
+        <div class="hold-wrap" id="holdWrap">
+          <div class="hold" id="hold">
+            <svg class="hold-ring" viewBox="0 0 168 168" aria-hidden="true"><circle cx="84" cy="84" r="80"></circle></svg>
+            <div class="hold-inner"><div class="ico">🎧</div><div class="t">按住屏幕</div><div class="s">戴上降噪耳机</div></div>
+          </div>
+          <p class="caption" style="text-align:center">按住约 1 秒，让嘈杂退场。</p>
+        </div>
+        ${folio(1, '觉察疲惫')}
+      </section>`;
+  }
+
+  async function runAct1() {
+    if (state.holdDone) { bind(); return; }
+    await revealSteps(900);
+    bind();
+  }
+
+  /* ---------- Act2 · 互动困境 ---------- */
+  function renderAct2() {
+    const ds = state.act2Choice ? '' : ' data-step';
+    let interact;
+    if (!state.act2Choice) {
+      interact = `
+        <div class="chat">
+          <div class="chat-head">
+            <div class="chat-avatar">合</div>
+            <div><div class="chat-name">今晚刚认识的合作伙伴</div><div class="chat-sub">潜在 · 你很欣赏的一位</div></div>
+            <div class="chat-time">01:16</div>
+          </div>
+          <div class="bubble-row in"><div class="bubble">今天聊得很开心！改天有空一起喝茶 / 吃饭！</div></div>
+        </div>
+        <p class="prompt">你想了想。回复的方式，往往决定了这段关系往哪走。</p>
+        <div class="choices">
+          <button class="choice" data-branch="A"><span class="num">A</span><span class="label">好呀！随时联系，您看下周方便吗？</span><span class="tag">常规</span></button>
+          <button class="choice" data-branch="B"><span class="num">B</span><span class="label">太好了！您刚才提到的那个项目启发很大，回去我把整理的资料发您，顺便定下周三的咖啡。</span><span class="tag">强钩子</span></button>
+        </div>`;
+    } else if (state.act2Choice === 'A') {
+      interact = `
+        <div class="chat">
+          <div class="chat-head">
+            <div class="chat-avatar">合</div>
+            <div><div class="chat-name">今晚刚认识的合作伙伴</div><div class="chat-sub">潜在 · 你很欣赏的一位</div></div>
+          </div>
+          <div class="chat-sink" id="chatSink">
+            <div class="sink-inner">
+              <div class="bubble-row in"><div class="bubble">今天聊得很开心！改天有空一起喝茶 / 吃饭！</div></div>
+              <div class="bubble-row out"><div class="bubble">好呀！随时联系，您看下周方便吗？</div></div>
+            </div>
+            <div class="dust"></div>
+          </div>
+        </div>
+        <div class="outcome faded">
+          <p class="outcome-tag">A · 常规反应</p>
+          <div class="timelapse">
+            <div class="ts">3 天后 ……</div>
+            <div class="ts">7 天后 ……</div>
+            <div class="ts">一个月后 ……</div>
+          </div>
+          <p class="outcome-line">对话框慢慢沉到底部，蒙上一层灰。「改天」变成了「再也没联系」。</p>
+        </div>
+        <button class="advance" data-go="3">继续 · 能量告急 -></button>`;
+    } else {
+      interact = `
+        <div class="chat">
+          <div class="chat-head">
+            <div class="chat-avatar">合</div>
+            <div><div class="chat-name">今晚刚认识的合作伙伴</div><div class="chat-sub">潜在 · 你很欣赏的一位</div></div>
+          </div>
+          <div class="bubble-row in"><div class="bubble">今天聊得很开心！改天有空一起喝茶 / 吃饭！</div></div>
+          <div class="bubble-row out"><div class="bubble">太好了！您刚才提到的那个项目启发很大，回去我把整理的资料发您，顺便定下周三的咖啡。</div></div>
+        </div>
+        <div class="outcome">
+          <p class="outcome-tag">B · 强钩子跟单</p>
+          <div class="calendar">
+            <div class="cal-card"><div class="m">下周</div><div class="d">三</div><div class="w">WED</div></div>
+            <div><div class="cal-check">✓</div></div>
+            <p class="outcome-line" style="margin:0">连接建立成功，深度对话开启。<br>一次具体的约定，把「一面之交」接住了。</p>
+          </div>
+        </div>
+        <button class="advance" data-go="3">继续 · 能量告急 -></button>`;
+    }
+    const lead = state.act2Choice ? '' : `<p class="prose lead"${ds}>手机又震了一下。是今晚刚认识、你挺欣赏的一位。一句客气的开场，把球递到了你脚下。</p>`;
+    return `
+      <section class="scene">
+        <p class="eyebrow"${ds}>第二幕 · 互动困境</p>
+        <h2 class="scene-title"${ds}>那条「改天」</h2>
+        ${lead}
+        ${interact}
+        ${folio(2, '互动困境')}
+      </section>`;
+  }
+
+  async function runAct2() {
+    if (state.act2Choice) { bind(); return; }
+    await revealSteps(900);
+    bind();
+  }
+
+  /* ---------- Act3 · 能量告急（能量去向盘点 + 三行 + 满电） ---------- */
+  function renderAct3() {
+    return `
+      <section class="scene">
+        <p class="eyebrow" data-step>第三幕 · 能量告急</p>
+        <h2 class="scene-title" data-step>社交电量</h2>
+        <p class="prose lead">你消耗了一个晚上的能量，换回几个名字、几句客套。它们没变成关系，只是在通讯录里慢慢冷却。</p>
+
+        <div class="battery-wrap">
+          <div class="battery" id="battery"><div class="fill"></div></div>
+          <div class="battery-label" id="batteryLabel">社交能量 · 15%</div>
+        </div>
+
+        <p class="prompt" id="energyPrompt">今晚的能量，都去了哪？逐条点开看看。</p>
+        <div class="energy" id="energy">
+          <button class="energy-item" type="button" data-energy="0"><div class="ehead"><span class="elabel">社交体力</span><span class="ebar"><i style="width:88%"></i></span></div><div class="edetail">一晚上笑着应酬、不停切换话题，体力在「保持状态」里悄悄漏光。</div></button>
+          <button class="energy-item" type="button" data-energy="1"><div class="ehead"><span class="elabel">情绪投入</span><span class="ebar"><i style="width:72%"></i></span></div><div class="edetail">每一句捧场、每一次共情，都在花情绪账户里的余额。</div></button>
+          <button class="energy-item" type="button" data-energy="2"><div class="ehead"><span class="elabel">信息过载</span><span class="ebar"><i style="width:80%"></i></span></div><div class="edetail">记了一堆名字、头衔、项目，大脑在后台不停归档，没空留给真正重要的东西。</div></button>
+          <button class="energy-item" type="button" data-energy="3"><div class="ehead"><span class="elabel">期待落差</span><span class="ebar"><i style="width:94%"></i></span></div><div class="edetail">以为今晚能交到朋友，散场才发现，连一个想深聊的人都没接住。</div></button>
+        </div>
+
+        <div class="strike-lines" id="strikeLines" hidden>
+          <p class="strike-line" data-line="0">我们不缺社交，我们缺乏的是<em>高质量的连接</em>。</p>
+          <p class="strike-line" data-line="1">社交的卡顿，不是因为你不够圆滑，而是缺乏一套<em>可持续的社交操作系统</em>。</p>
+          <p class="strike-line" data-line="2">你消耗了能量，却没有把「一面之交」转化为「滋养型关系」。</p>
+        </div>
+
+        <p class="prose recap" id="recap">热闹散了，能打电话的人并没多。中间差的，是一套流程。</p>
+
+        <div class="bridge" id="bridge">
+          <div class="bridge-inner">
+            <p class="prose" style="margin:0 0 1.2rem;color:var(--muted)">能量重新注入。卷轴展开。</p>
+            <a class="advance" href="../reader.html?id=social-currency">点击进入 ·《社交货币与能量管理：系统修炼手册》 -></a>
+          </div>
+        </div>
+
+        <div class="end-actions" id="endActions" style="display:none">
+          <button class="advance ghost" data-go="0">↺ 重看一次</button>
+          <a class="advance ghost" href="../reader.html?id=social-currency">直接进入长文 -></a>
+        </div>
+        <p class="caption">建议佩戴耳机 · 声音为实时合成，无任何录音。</p>
+        ${folio(3, '能量告急')}
+      </section>`;
+  }
+
+  async function runAct3() {
+    const battery = document.getElementById('battery');
+    const fill = battery && battery.querySelector('.fill');
+    const label = document.getElementById('batteryLabel');
+    const lines = document.querySelectorAll('#strikeLines .strike-line');
+    const bridge = document.getElementById('bridge');
+    const endActions = document.getElementById('endActions');
+    const recap = document.getElementById('recap');
+    const strikeLines = document.getElementById('strikeLines');
+    const energyPrompt = document.getElementById('energyPrompt');
+
+    await revealSteps(900);
+
+    await wait(reduced ? 200 : 500);
+    if (reduced && fill) { fill.style.width = '2.5%'; }
+    else { battery.classList.add('draining'); }
+    if (label) label.textContent = '社交能量 · 告急';
+    Sound.collapse();
+    await wait(reduced ? 300 : 2200);
+
+    /* 能量去向：等用户点完 4 条 */
+    bind();
+    await new Promise(res => { state.energyResolve = res; });
+
+    if (energyPrompt) energyPrompt.style.display = 'none';
+    if (strikeLines) strikeLines.hidden = false;
+    await wait(reduced ? 100 : 400);
+    for (let i=0;i<lines.length;i++){ await typeLine(lines[i]); await wait(reduced?200:650); }
+    await wait(reduced ? 200 : 500);
+
+    if (recap) { recap.classList.add('show'); await wait(reduced ? 150 : 2600); }
+
+    if (reduced && fill) {
+      fill.style.width = '95%'; fill.style.background = 'var(--neon)'; fill.style.boxShadow = '0 0 26px rgba(224,138,78,.6)';
+    } else {
+      battery.classList.remove('draining'); battery.classList.add('charging');
+    }
+    if (label) { label.textContent = '社交能量 · 100%'; label.classList.add('full'); }
+    Sound.charge();
+    await wait(reduced ? 200 : 1700);
+
+    bridge.classList.add('show');
+    if (endActions) endActions.style.display = 'flex';
+    await wait(reduced ? 100 : 600);
+    bridge.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+  }
+
+  /* ---------- 逐行打出 ---------- */
+  function typeLine(el) {
+    return new Promise(res => {
+      const raw = el.innerHTML;
+      if (reduced) { el.classList.add('done'); return res(); }
+      el.innerHTML = '<span class="cursor">▍</span>';
+      el.classList.add('typing');
+      let out = '', i = 0;
+      const step = () => {
+        if (i >= raw.length) { el.innerHTML = raw; el.classList.remove('typing'); el.classList.add('done'); return res(); }
+        if (raw[i] === '<') {
+          const end = raw.indexOf('>', i);
+          out += raw.slice(i, end + 1);
+          i = end + 1;
+          return step();
+        }
+        out += raw[i++];
+        el.innerHTML = out + '<span class="cursor">▍</span>';
+        setTimeout(step, 42 + Math.random() * 30);
+      };
+      step();
+    });
+  }
+
+  /* ---------- 按住手势 ---------- */
+  function attachHold() {
+    const el = document.getElementById('hold');
+    if (!el) return;
+    const circle = el.querySelector('circle');
+    const R = 80, C = 2*Math.PI*R;
+    if (circle) { circle.style.strokeDasharray = C; circle.style.strokeDashoffset = C; }
+    let raf=null, start=0, done=false;
+    const tick = ts => {
+      if (done) return;
+      if (!start) start = ts;
+      const p = Math.min((ts-start)/900, 1);
+      if (circle) circle.style.strokeDashoffset = C*(1-p);
+      if (p >= 1) { done=true; trigger(); return; }
+      raf = requestAnimationFrame(tick);
+    };
+    const trigger = () => {
+      el.classList.add('holding');
+      Sound.set('crowd', 0, 2.2);
+      Sound._rampShimmer(0);
+      Sound.set('wind', 0.48, 2.4);
+      Sound.set('lofi', 0.34, 2.6);
+      state.holdDone = true;
+      setTimeout(() => {
+        cancelAnimationFrame(raf);
+        render(); bind();
+        window.scrollTo({ top: document.body.scrollHeight, behavior: reduced?'auto':'smooth' });
+      }, 1400);
+    };
+    const down = e => { e.preventDefault(); if (done) return; done=false; start=0; el.classList.add('holding'); raf=requestAnimationFrame(tick); };
+    const up = () => { if (done) return; cancelAnimationFrame(raf); raf=null; start=0; el.classList.remove('holding'); if (circle) circle.style.strokeDashoffset=C; };
+    el.addEventListener('pointerdown', down);
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+    el.addEventListener('pointerleave', up);
+  }
+
+  /* ---------- 事件绑定 ---------- */
+  function bind() {
+    const enter = document.getElementById('enterBtn');
+    if (enter) enter.addEventListener('click', async () => {
+      Sound.init(); await Sound.resume();
+      go(1);
+    });
+    stage.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
+      const n = +b.dataset.go;
+      if (n === 0) { state.holdDone=false; state.act2Choice=null; state.act3Started=false; }
+      go(n);
+    }));
+    stage.querySelectorAll('[data-branch]').forEach(b => b.addEventListener('click', () => {
+      state.act2Choice = b.dataset.branch;
+      render(); bind();
+      if (state.act2Choice === 'A') {
+        const sink = document.getElementById('chatSink');
+        const ts = document.querySelectorAll('.timelapse .ts');
+        setTimeout(()=> ts.forEach((t,i)=> setTimeout(()=>t.classList.add('in'), i*350)), 250);
+        setTimeout(()=> sink && sink.classList.add('sunk'), ts.length*350+400);
+      }
+    }));
+    stage.querySelectorAll('[data-contact]').forEach(b => b.addEventListener('click', () => {
+      if (b.classList.contains('viewed')) return;
+      b.classList.add('viewed');
+      state.contactsViewed++;
+      if (state.contactsViewed >= 3) {
+        const cl = document.getElementById('contacts');
+        const hw = document.getElementById('holdWrap');
+        if (cl) cl.classList.add('done');
+        if (hw) hw.classList.add('show');
+      }
+    }));
+    stage.querySelectorAll('[data-energy]').forEach(b => b.addEventListener('click', () => {
+      if (b.classList.contains('viewed')) return;
+      b.classList.add('viewed');
+      state.energyViewed++;
+      if (state.energyViewed >= 4 && state.energyResolve) {
+        const r = state.energyResolve; state.energyResolve = null; r();
+      }
+    }));
+    if (state.scene === 1 && !state.holdDone) attachHold();
+  }
+
+  /* ---------- 静音按钮 ---------- */
+  document.getElementById('muteBtn').addEventListener('click', () => {
+    Sound.init();
+    const muted = Sound.toggleMute();
+    const btn = document.getElementById('muteBtn');
+    btn.textContent = muted ? '静音中' : '声音';
+    btn.classList.toggle('muted', muted);
+  });
+
+  /* 初始 */
+  render(); bind();
+</script>
+</body>
+</html>
