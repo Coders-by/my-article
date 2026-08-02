@@ -972,14 +972,29 @@
     btn.classList.toggle('muted', muted);
   });
 
-  /* 移动端：首次手势解锁音频（iOS Safari 需在手势内播放一段静音才放行 AudioContext） */
-  const unlockOnce = () => {
+  /* 移动端 / 微信内置浏览器音频解锁：
+     iOS Safari 需手势内播放静音才放行 AudioContext；微信（WKWebView/X5）还需 <audio>.play()，
+     且 WeixinJSBridgeReady 回调被视作授权上下文，可在其中触发播放。 */
+  const SILENCE = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YSADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
+  let wxAudio = null;
+  const unlockAudio = () => {
+    let a = wxAudio;
+    if (!a) { a = wxAudio = document.createElement('audio'); a.src = SILENCE; a.preload = 'auto'; }
+    const p = a.play();
+    if (p && p.then) p.then(() => { try { a.pause(); } catch (e) {} }).catch(() => {});
     Sound.init();
     if (Sound.ctx && Sound.ctx.state === 'suspended') { Sound.ctx.resume(); }
     Sound.unlock();
   };
-  document.addEventListener('touchstart', unlockOnce, { once: true, capture: true });
-  document.addEventListener('click', unlockOnce, { once: true, capture: true });
+  if (window.WeixinJSBridge) {
+    try { WeixinJSBridge.invoke('getNetworkType', {}, unlockAudio); } catch (e) {}
+  } else {
+    document.addEventListener('WeixinJSBridgeReady', () => {
+      try { WeixinJSBridge.invoke('getNetworkType', {}, unlockAudio); } catch (e) {}
+    }, false);
+  }
+  document.addEventListener('touchstart', unlockAudio, { once: true, capture: true });
+  document.addEventListener('click', unlockAudio, { once: true, capture: true });
 
   /* 初始 */
   render(); bind();
